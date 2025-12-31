@@ -3,14 +3,20 @@ import { BrowserModule, provideClientHydration, withEventReplay } from '@angular
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
+import { Home } from './pages/home/home';
+import { SharedModule } from './shared/shared-module';
+import { Login } from './pages/login/login';
 
 @NgModule({
   declarations: [
-    App
+    App,
+    Home,
+    Login
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    SharedModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
