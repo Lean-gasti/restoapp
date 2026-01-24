@@ -1,0 +1,132 @@
+<div class="company-page">
+  <app-header 
+    title="Configuración de Empresa"
+    subtitle="Personaliza la información de tu negocio">
+  </app-header>
+  
+  <div class="settings-content">
+    @if (isLoading) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Cargando configuración...</span>
+      </div>
+    } @else {
+      <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" class="settings-form">
+        <div class="form-grid">
+          <!-- Company Info Card -->
+          <mat-card class="settings-card">
+            <mat-card-header>
+              <mat-card-title>Información General</mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Nombre del negocio</mat-label>
+                <input matInput formControlName="name" placeholder="Mi Restaurante">
+                <mat-icon matSuffix>business</mat-icon>
+                @if (nameControl?.hasError('required') && nameControl?.touched) {
+                  <mat-error>El nombre es requerido</mat-error>
+                }
+                @if (nameControl?.hasError('minlength') && nameControl?.touched) {
+                  <mat-error>Mínimo 2 caracteres</mat-error>
+                }
+              </mat-form-field>
+              
+              <div class="slug-field">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Slug (URL amigable)</mat-label>
+                  <input matInput formControlName="slug" placeholder="mi-restaurante">
+                  <mat-icon matSuffix>link</mat-icon>
+                  @if (slugControl?.hasError('required') && slugControl?.touched) {
+                    <mat-error>El slug es requerido</mat-error>
+                  }
+                  @if (slugControl?.hasError('pattern') && slugControl?.touched) {
+                    <mat-error>Solo letras minúsculas, números y guiones</mat-error>
+                  }
+                </mat-form-field>
+                <button 
+                  mat-stroked-button 
+                  type="button" 
+                  class="generate-btn"
+                  (click)="generateSlug()">
+                  Generar
+                </button>
+              </div>
+              
+              <div class="public-url">
+                <mat-icon>public</mat-icon>
+                <span>Tu menú estará disponible en:</span>
+                <a [href]="publicUrl" target="_blank">{{ publicUrl }}</a>
+              </div>
+              
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Ubicación</mat-label>
+                <input matInput formControlName="location" placeholder="Dirección del local">
+                <mat-icon matSuffix>location_on</mat-icon>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>WhatsApp</mat-label>
+                <input matInput formControlName="whatsapp" placeholder="+5491123456789">
+                <mat-icon matSuffix>phone</mat-icon>
+                @if (whatsappControl?.hasError('pattern') && whatsappControl?.touched) {
+                  <mat-error>Número inválido (10-15 dígitos)</mat-error>
+                }
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
+          
+          <!-- Logo Card -->
+          <mat-card class="settings-card logo-card">
+            <mat-card-header>
+              <mat-card-title>Logo</mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="logo-preview">
+                @if (logoPreview) {
+                  <img [src]="logoPreview" alt="Logo">
+                } @else {
+                  <div class="logo-placeholder">
+                    <mat-icon>add_photo_alternate</mat-icon>
+                    <span>Sin logo</span>
+                  </div>
+                }
+              </div>
+              
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>URL del logo</mat-label>
+                <input 
+                  matInput 
+                  formControlName="logoUrl" 
+                  placeholder="https://ejemplo.com/logo.png"
+                  (blur)="onLogoUrlChange()">
+                <mat-icon matSuffix>image</mat-icon>
+              </mat-form-field>
+              
+              <p class="logo-hint">
+                Recomendamos una imagen cuadrada de al menos 200x200 píxeles.
+              </p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+        
+        <!-- Save Button -->
+        <div class="form-actions">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            type="submit"
+            [disabled]="isSaving || companyForm.invalid">
+            @if (isSaving) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <mat-icon>save</mat-icon>
+              Guardar Cambios
+            }
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

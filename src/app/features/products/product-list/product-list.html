@@ -1,0 +1,135 @@
+<div class="products-page">
+  <app-header 
+    title="Gestión de Menú"
+    subtitle="Administra tus platillos, precios y disponibilidad."
+    [showAddButton]="true"
+    addButtonText="Agregar Producto"
+    (addClick)="addProduct()">
+  </app-header>
+  
+  <div class="products-content">
+    <!-- Sidebar with Categories -->
+    <aside class="categories-sidebar">
+      <h3 class="sidebar-title">Categorías</h3>
+      <div class="category-list">
+        <button 
+          class="category-item" 
+          [class.active]="!selectedCategory"
+          (click)="selectedCategory = ''; onCategoryChange()">
+          <span>Todas</span>
+          <span class="category-count">{{ products.length }}</span>
+        </button>
+        @for (category of categories; track category._id) {
+          <button 
+            class="category-item" 
+            [class.active]="selectedCategory === category._id"
+            (click)="selectedCategory = category._id || ''; onCategoryChange()">
+            <span>{{ category.name }}</span>
+            <mat-icon class="expand-icon">expand_more</mat-icon>
+          </button>
+        }
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="products-main">
+      <!-- Filters Bar -->
+      <div class="filters-bar">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Buscar productos</mat-label>
+          <input matInput [formControl]="searchControl" placeholder="Nombre o descripción...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Disponibilidad</mat-label>
+          <mat-select [(value)]="selectedAvailability" (selectionChange)="onAvailabilityChange()">
+            <mat-option value="">Todas</mat-option>
+            <mat-option value="true">Disponibles</mat-option>
+            <mat-option value="false">No disponibles</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        @if (searchControl.value || selectedCategory || selectedAvailability) {
+          <button mat-stroked-button class="clear-btn" (click)="clearFilters()">
+            <mat-icon>clear</mat-icon>
+            Limpiar
+          </button>
+        }
+      </div>
+      
+      <!-- Products Grid -->
+      @if (isLoading) {
+        <div class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <span>Cargando productos...</span>
+        </div>
+      } @else if (filteredProducts.length === 0) {
+        <div class="empty-state">
+          <mat-icon>restaurant_menu</mat-icon>
+          <h3>No hay productos</h3>
+          <p>{{ searchControl.value || selectedCategory ? 'No se encontraron productos con los filtros aplicados.' : 'Comienza agregando tu primer producto.' }}</p>
+          <button mat-raised-button color="primary" (click)="addProduct()">
+            <mat-icon>add</mat-icon>
+            Agregar Producto
+          </button>
+        </div>
+      } @else {
+        <div class="products-grid">
+          @for (product of filteredProducts; track product._id) {
+            <div class="product-card" [class.unavailable]="!product.available">
+              <div class="product-image">
+                @if (product.imageUrl) {
+                  <img [src]="product.imageUrl" [alt]="product.name">
+                } @else {
+                  <div class="image-placeholder">
+                    <mat-icon>restaurant</mat-icon>
+                  </div>
+                }
+                <div class="product-badge" [class.available]="product.available">
+                  {{ product.available ? 'Disponible' : 'No disponible' }}
+                </div>
+              </div>
+              
+              <div class="product-info">
+                <div class="product-header">
+                  <h4 class="product-name">{{ product.name }}</h4>
+                  <span class="product-price">${{ product.price | number:'1.2-2' }}</span>
+                </div>
+                
+                <p class="product-description">{{ product.description || 'Sin descripción' }}</p>
+                
+                <div class="product-category">
+                  <mat-icon>folder</mat-icon>
+                  <span>{{ getCategoryName(product.categoryId) }}</span>
+                </div>
+              </div>
+              
+              <div class="product-actions">
+                <button 
+                  mat-icon-button 
+                  [matTooltip]="product.available ? 'Deshabilitar' : 'Habilitar'"
+                  (click)="toggleAvailability(product)">
+                  <mat-icon>{{ product.available ? 'visibility' : 'visibility_off' }}</mat-icon>
+                </button>
+                <button 
+                  mat-icon-button 
+                  matTooltip="Editar"
+                  (click)="editProduct(product)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button 
+                  mat-icon-button 
+                  matTooltip="Eliminar"
+                  class="delete-btn"
+                  (click)="deleteProduct(product)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </main>
+  </div>
+</div>

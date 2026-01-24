@@ -1,0 +1,34 @@
+<div class="confirmation-dialog" [class]="data.type">
+  <div class="dialog-header">
+    <div class="icon-container" [class]="data.type">
+      @switch (data.type) {
+        @case ('danger') {
+          <mat-icon>warning</mat-icon>
+        }
+        @case ('warning') {
+          <mat-icon>help</mat-icon>
+        }
+        @case ('info') {
+          <mat-icon>info</mat-icon>
+        }
+      }
+    </div>
+    <h2 class="dialog-title">{{ data.title }}</h2>
+  </div>
+  
+  <mat-dialog-content>
+    <p class="dialog-message">{{ data.message }}</p>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button (click)="onCancel()">
+      {{ data.cancelText }}
+    </button>
+    <button 
+      mat-raised-button 
+      [color]="data.type === 'danger' ? 'warn' : 'primary'"
+      (click)="onConfirm()">
+      {{ data.confirmText }}
+    </button>
+  </mat-dialog-actions>
+</div>

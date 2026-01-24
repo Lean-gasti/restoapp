@@ -1,44 +1,89 @@
 <div class="login">
-    <div class="login-wrapper">
-        <mat-card class="login-card shadow-lg">
-            <mat-card-header>
-            <div mat-card-avatar class="login-header-image"></div>
-            <mat-card-title>RestoApp</mat-card-title>
-            <mat-card-subtitle>Bienvenido, por favor identifícate</mat-card-subtitle>
-            </mat-card-header>
-
-            <mat-card-content>
-            <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
-                
-                <mat-form-field appearance="outline">
-                <mat-label>Email</mat-label>
-                <input matInput formControlName="email" type="email" placeholder="usuario@resto.com">
-                <mat-icon matSuffix>person</mat-icon>
-                <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-                    Ingresa un correo válido
-                </mat-error>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                <mat-label>Contraseña</mat-label>
-                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
-                <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" aria-label="Ver contraseña">
-                    <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-                </button>
-                <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
-                    Mínimo 6 caracteres
-                </mat-error>
-                </mat-form-field>
-
-                <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid" class="login-button">
-                INICIAR SESIÓN
-                </button>
-            </form>
-            </mat-card-content>
-
-            <mat-card-footer>
-            <p class="footer-text">¿Olvidaste tu contraseña? <a href="#">Haz clic aquí</a></p>
-            </mat-card-footer>
-        </mat-card>
+  <div class="login-left">
+    <div class="brand">
+      <div class="logo">
+        <mat-icon>restaurant</mat-icon>
+      </div>
+      <h1>MenuManager</h1>
+      <p>La plataforma más fácil para gestionar el menú de tu restaurante</p>
     </div>
+    
+    <div class="features">
+      <div class="feature">
+        <mat-icon>restaurant_menu</mat-icon>
+        <span>Gestiona productos fácilmente</span>
+      </div>
+      <div class="feature">
+        <mat-icon>category</mat-icon>
+        <span>Organiza por categorías</span>
+      </div>
+      <div class="feature">
+        <mat-icon>menu_book</mat-icon>
+        <span>Crea catálogos personalizados</span>
+      </div>
+      <div class="feature">
+        <mat-icon>qr_code</mat-icon>
+        <span>Comparte con código QR</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="login-right">
+    <div class="login-wrapper">
+      <mat-card class="login-card">
+        <mat-card-header>
+          <mat-card-title>Bienvenido de nuevo</mat-card-title>
+          <mat-card-subtitle>Ingresa tus credenciales para continuar</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
+            
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email" placeholder="usuario@resto.com">
+              <mat-icon matSuffix>person</mat-icon>
+              @if (loginForm.get('email')?.hasError('email') && loginForm.get('email')?.touched) {
+                <mat-error>Ingresa un correo válido</mat-error>
+              }
+              @if (loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched) {
+                <mat-error>El correo es requerido</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Contraseña</mat-label>
+              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+              <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" aria-label="Ver contraseña">
+                <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+              @if (loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched) {
+                <mat-error>Mínimo 6 caracteres</mat-error>
+              }
+              @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
+                <mat-error>La contraseña es requerida</mat-error>
+              }
+            </mat-form-field>
+
+            <button 
+              mat-raised-button 
+              color="primary" 
+              type="submit" 
+              [disabled]="isLoading" 
+              class="login-button">
+              @if (isLoading) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                INICIAR SESIÓN
+              }
+            </button>
+          </form>
+        </mat-card-content>
+
+        <mat-card-footer>
+          <p class="footer-text">¿Olvidaste tu contraseña? <a href="#">Haz clic aquí</a></p>
+        </mat-card-footer>
+      </mat-card>
+    </div>
+  </div>
 </div>

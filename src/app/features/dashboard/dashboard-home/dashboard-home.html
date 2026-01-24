@@ -1,0 +1,120 @@
+<div class="dashboard-page">
+  <app-header 
+    title="Dashboard" 
+    subtitle="Resumen general de tu negocio">
+  </app-header>
+  
+  <div class="dashboard-content">
+    <!-- Stats Cards -->
+    <section class="stats-section">
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-icon">
+            <mat-icon>restaurant_menu</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.totalProducts }}</span>
+            <span class="stat-label">Total Productos</span>
+          </div>
+        </div>
+        
+        <div class="stat-card success">
+          <div class="stat-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.availableProducts }}</span>
+            <span class="stat-label">Disponibles</span>
+          </div>
+        </div>
+        
+        <div class="stat-card warning">
+          <div class="stat-icon">
+            <mat-icon>cancel</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.unavailableProducts }}</span>
+            <span class="stat-label">No Disponibles</span>
+          </div>
+        </div>
+        
+        <div class="stat-card info">
+          <div class="stat-icon">
+            <mat-icon>category</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stats.totalCategories }}</span>
+            <span class="stat-label">Categorías</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Quick Actions -->
+    <section class="quick-actions-section">
+      <h2 class="section-title">Acciones Rápidas</h2>
+      <div class="actions-grid">
+        @for (action of quickActions; track action.route) {
+          <button class="action-card" (click)="navigateTo(action.route)">
+            <div class="action-icon" [style.background]="action.color">
+              <mat-icon>{{ action.icon }}</mat-icon>
+            </div>
+            <span class="action-label">{{ action.label }}</span>
+          </button>
+        }
+      </div>
+    </section>
+    
+    <!-- Products by Category -->
+    <section class="categories-section">
+      <h2 class="section-title">Productos por Categoría</h2>
+      <div class="categories-grid">
+        @for (item of productsByCategory; track item.category) {
+          <div class="category-card">
+            <div class="category-header">
+              <span class="category-name">{{ item.category }}</span>
+              <span class="category-count">{{ item.count }}</span>
+            </div>
+            <div class="category-bar">
+              <div 
+                class="category-fill" 
+                [style.width.%]="(item.count / stats.totalProducts) * 100">
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+    
+    <!-- Recent Products Preview -->
+    <section class="recent-section">
+      <div class="section-header">
+        <h2 class="section-title">Productos Recientes</h2>
+        <button mat-stroked-button (click)="navigateTo('/products')">
+          Ver Todos
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+      <div class="products-preview">
+        @for (product of products | slice:0:4; track product._id) {
+          <div class="product-preview-card">
+            <div class="product-image">
+              @if (product.imageUrl) {
+                <img [src]="product.imageUrl" [alt]="product.name">
+              } @else {
+                <mat-icon>restaurant</mat-icon>
+              }
+            </div>
+            <div class="product-info">
+              <span class="product-name">{{ product.name }}</span>
+              <span class="product-price">${{ product.price | number:'1.2-2' }}</span>
+            </div>
+            <div class="product-status" [class.available]="product.available">
+              {{ product.available ? 'Disponible' : 'No disponible' }}
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+</div>

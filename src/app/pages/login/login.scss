@@ -1,48 +1,231 @@
-.login{
-    .login-wrapper {
+.login {
     display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    background-color: #0a0942;
-    }
+}
 
-    .login-card {
-    width: 100%;
-    max-width: 450px;
-    padding: 1.5rem;
-    border-radius: 12px;
-    }
-
-    .login-form {
+// Left Panel
+.login-left {
+    flex: 1;
+    background: linear-gradient(135deg, #1a1f36 0%, #252b48 100%);
+    padding: 60px;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    justify-content: center;
+    color: #fff;
+}
+
+.brand {
+    margin-bottom: 60px;
+
+    .logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+
+        mat-icon {
+            font-size: 40px;
+            width: 40px;
+            height: 40px;
+            color: #fff;
+        }
     }
 
-    .login-header-image {
-    background-image: url('https://cdn-icons-png.flaticon.com/512/3448/3448609.png'); // Icono de ejemplo de comida/resto
-    background-size: cover;
+    h1 {
+        font-size: 36px;
+        font-weight: 700;
+        margin: 0 0 12px;
+        letter-spacing: -0.5px;
     }
 
-    .login-button {
-    height: 50px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-top: 1rem;
+    p {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
+        max-width: 360px;
+        line-height: 1.6;
     }
+}
+
+.features {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    transition: all 0.25s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(8px);
+    }
+
+    mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: #667eea;
+    }
+
+    span {
+        font-size: 15px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.8);
+    }
+}
+
+// Right Panel
+.login-right {
+    flex: 1;
+    background: #f5f7fb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 440px;
+}
+
+.login-card {
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+mat-card-header {
+    padding: 32px 32px 0;
+    display: block;
+    text-align: center;
+
+    mat-card-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #1a1f36;
+        margin-bottom: 8px;
+    }
+
+    mat-card-subtitle {
+        font-size: 14px;
+        color: #6b7280;
+    }
+}
+
+mat-card-content {
+    padding: 32px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    mat-form-field {
+        width: 100%;
+    }
+}
+
+::ng-deep {
+    .login-card {
+        .mat-mdc-form-field-subscript-wrapper {
+            height: 20px;
+        }
+
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__trailing {
+            border-color: #e5e7eb !important;
+        }
+
+        .mat-mdc-form-field-infix {
+            padding-top: 14px !important;
+            padding-bottom: 14px !important;
+        }
+    }
+}
+
+.login-button {
+    width: 100%;
+    height: 52px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    transition: all 0.25s ease;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+    }
+
+    &:disabled {
+        opacity: 0.7;
+    }
+}
+
+mat-card-footer {
+    padding: 0 32px 32px;
+    text-align: center;
 
     .footer-text {
-        text-align: center;
-        font-size: 0.85rem;
-        padding: 1rem;
-        color: #666;
+        font-size: 14px;
+        color: #6b7280;
+        margin: 0;
 
         a {
-            color: #3f51b5;
+            color: #667eea;
+            font-weight: 500;
             text-decoration: none;
-            &:hover { text-decoration: underline; }
+
+            &:hover {
+                text-decoration: underline;
+            }
         }
+    }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+    .login-left {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-right {
+        padding: 24px;
+    }
+
+    mat-card-header {
+        padding: 24px 24px 0;
+
+        mat-card-title {
+            font-size: 22px;
+        }
+    }
+
+    mat-card-content {
+        padding: 24px;
+    }
+
+    mat-card-footer {
+        padding: 0 24px 24px;
     }
 }

@@ -1,0 +1,148 @@
+<div class="builder-page">
+  <app-header 
+    [title]="catalog?.name || 'Constructor de Catálogo'"
+    subtitle="Arrastra productos para agregar al catálogo">
+  </app-header>
+  
+  <div class="builder-content">
+    @if (isLoading) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Cargando...</span>
+      </div>
+    } @else {
+      <div class="builder-layout">
+        <!-- Available Products Panel -->
+        <div class="products-panel">
+          <div class="panel-header">
+            <h3>Productos Disponibles</h3>
+            <mat-form-field appearance="outline" class="category-filter">
+              <mat-label>Categoría</mat-label>
+              <mat-select [(value)]="selectedCategory">
+                <mat-option value="">Todas</mat-option>
+                @for (category of categories; track category._id) {
+                  <mat-option [value]="category._id">{{ category.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          
+          <div 
+            class="products-list"
+            cdkDropList
+            #availableList="cdkDropList"
+            [cdkDropListData]="filteredProducts"
+            [cdkDropListConnectedTo]="[catalogList]"
+            id="availableList"
+            (cdkDropListDropped)="drop($event)">
+            
+            @for (product of filteredProducts; track product._id) {
+              <div 
+                class="product-item" 
+                cdkDrag
+                [cdkDragData]="product">
+                <div class="product-image">
+                  @if (product.imageUrl) {
+                    <img [src]="product.imageUrl" [alt]="product.name">
+                  } @else {
+                    <mat-icon>restaurant</mat-icon>
+                  }
+                </div>
+                <div class="product-info">
+                  <span class="product-name">{{ product.name }}</span>
+                  <span class="product-category">{{ getCategoryName(product.categoryId) }}</span>
+                </div>
+                <span class="product-price">${{ product.price | number:'1.2-2' }}</span>
+                <button mat-icon-button class="add-btn" (click)="addToCatalog(product)">
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+                
+                <div class="drag-placeholder" *cdkDragPlaceholder></div>
+              </div>
+            }
+            
+            @if (filteredProducts.length === 0) {
+              <div class="empty-list">
+                <mat-icon>inventory_2</mat-icon>
+                <span>No hay productos disponibles</span>
+              </div>
+            }
+          </div>
+        </div>
+        
+        <!-- Catalog Items Panel -->
+        <div class="catalog-panel">
+          <div class="panel-header">
+            <h3>Items del Catálogo</h3>
+            <span class="item-count">{{ catalogProducts.length }} productos</span>
+          </div>
+          
+          <div 
+            class="catalog-list"
+            cdkDropList
+            #catalogList="cdkDropList"
+            [cdkDropListData]="catalogProducts"
+            [cdkDropListConnectedTo]="[availableList]"
+            id="catalogList"
+            (cdkDropListDropped)="drop($event)">
+            
+            @for (product of catalogProducts; track product._id; let i = $index) {
+              <div 
+                class="catalog-item" 
+                cdkDrag>
+                <div class="item-handle" cdkDragHandle>
+                  <mat-icon>drag_indicator</mat-icon>
+                </div>
+                <span class="item-order">{{ i + 1 }}</span>
+                <div class="item-image">
+                  @if (product.imageUrl) {
+                    <img [src]="product.imageUrl" [alt]="product.name">
+                  } @else {
+                    <mat-icon>restaurant</mat-icon>
+                  }
+                </div>
+                <div class="item-info">
+                  <span class="item-name">{{ product.customName || product.name }}</span>
+                  <span class="item-price">${{ product.price | number:'1.2-2' }}</span>
+                </div>
+                <button mat-icon-button class="remove-btn" (click)="removeFromCatalog(product)">
+                  <mat-icon>remove_circle</mat-icon>
+                </button>
+                
+                <div class="drag-placeholder" *cdkDragPlaceholder></div>
+              </div>
+            }
+            
+            @if (catalogProducts.length === 0) {
+              <div class="empty-catalog">
+                <mat-icon>playlist_add</mat-icon>
+                <span>Arrastra productos aquí</span>
+                <p>Los productos aparecerán en el orden que los coloques</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      
+      <!-- Actions Bar -->
+      <div class="actions-bar">
+        <button mat-stroked-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Volver
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="saveCatalog()"
+          [disabled]="isSaving">
+          @if (isSaving) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <mat-icon>save</mat-icon>
+            Guardar Catálogo
+          }
+        </button>
+      </div>
+    }
+  </div>
+</div>

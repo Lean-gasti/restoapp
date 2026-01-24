@@ -1,0 +1,127 @@
+.app-header {
+  background: #fff;
+  padding: 20px 32px;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 100%;
+  gap: 24px;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1f36;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.add-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  text-transform: none;
+  font-size: 14px;
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  transition: all 0.25s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: #f8f9fc;
+  border-radius: 12px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    color: #fff;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.user-email {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .app-header {
+    padding: 16px 20px;
+  }
+
+  .header-title {
+    font-size: 22px;
+  }
+
+  .user-email {
+    display: none;
+  }
+
+  .add-button span {
+    display: none;
+  }
+
+  .add-button {
+    padding: 10px;
+    min-width: 44px;
+  }
+}

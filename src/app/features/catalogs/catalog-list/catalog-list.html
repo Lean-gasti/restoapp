@@ -1,0 +1,84 @@
+<div class="catalogs-page">
+  <app-header 
+    title="Catálogos"
+    subtitle="Crea y gestiona tus menús personalizados"
+    [showAddButton]="true"
+    addButtonText="Nuevo Catálogo"
+    (addClick)="createCatalog()">
+  </app-header>
+  
+  <div class="catalogs-content">
+    @if (isLoading) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Cargando catálogos...</span>
+      </div>
+    } @else if (catalogs.length === 0) {
+      <div class="empty-state">
+        <mat-icon>menu_book</mat-icon>
+        <h3>No hay catálogos</h3>
+        <p>Crea tu primer catálogo para mostrar tu menú a los clientes.</p>
+        <button mat-raised-button color="primary" (click)="createCatalog()">
+          <mat-icon>add</mat-icon>
+          Crear Catálogo
+        </button>
+      </div>
+    } @else {
+      <div class="catalogs-grid">
+        @for (catalog of catalogs; track catalog._id) {
+          <div class="catalog-card" [class.active]="catalog.isActive">
+            <div class="catalog-header">
+              <div class="catalog-status">
+                @if (catalog.isActive) {
+                  <span class="status-badge active">
+                    <mat-icon>check_circle</mat-icon>
+                    Activo
+                  </span>
+                } @else {
+                  <span class="status-badge inactive">Inactivo</span>
+                }
+              </div>
+              <button mat-icon-button [matMenuTriggerFor]="menu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="openBuilder(catalog)">
+                  <mat-icon>build</mat-icon>
+                  <span>Editar contenido</span>
+                </button>
+                <button mat-menu-item (click)="toggleActive(catalog)">
+                  <mat-icon>{{ catalog.isActive ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  <span>{{ catalog.isActive ? 'Desactivar' : 'Activar' }}</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item class="delete-item" (click)="deleteCatalog(catalog)">
+                  <mat-icon>delete</mat-icon>
+                  <span>Eliminar</span>
+                </button>
+              </mat-menu>
+            </div>
+            
+            <div class="catalog-body" (click)="openBuilder(catalog)">
+              <div class="catalog-icon">
+                <mat-icon>menu_book</mat-icon>
+              </div>
+              <h3 class="catalog-name">{{ catalog.name }}</h3>
+              <p class="catalog-description">{{ catalog.description || 'Sin descripción' }}</p>
+            </div>
+            
+            <div class="catalog-footer">
+              <div class="catalog-config">
+                <mat-icon>{{ catalog.configuration.view_prices ? 'attach_money' : 'money_off' }}</mat-icon>
+                <span>{{ catalog.configuration.view_prices ? 'Precios visibles' : 'Precios ocultos' }}</span>
+              </div>
+              <button mat-stroked-button (click)="openBuilder(catalog)">
+                <mat-icon>edit</mat-icon>
+                Editar
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

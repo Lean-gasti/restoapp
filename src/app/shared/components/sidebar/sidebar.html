@@ -1,0 +1,36 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-container">
+      @if (company?.logoUrl) {
+        <img [src]="company?.logoUrl" alt="Logo" class="logo-image">
+      } @else {
+        <div class="logo-placeholder">
+          <mat-icon>restaurant</mat-icon>
+        </div>
+      }
+      <div class="company-info">
+        <span class="company-name">{{ company?.name || 'MenuManager' }}</span>
+        <span class="company-subtitle">Dashboard</span>
+      </div>
+    </div>
+  </div>
+  
+  <nav class="sidebar-nav">
+    @for (item of navItems; track item.route) {
+      <button 
+        class="nav-item" 
+        [class.active]="item.active"
+        (click)="navigateTo(item.route)">
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span class="nav-label">{{ item.label }}</span>
+      </button>
+    }
+  </nav>
+  
+  <div class="sidebar-footer">
+    <button class="nav-item logout" (click)="onLogout()">
+      <mat-icon>logout</mat-icon>
+      <span class="nav-label">Cerrar Sesión</span>
+    </button>
+  </div>
+</aside>
