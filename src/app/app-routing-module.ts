@@ -4,15 +4,18 @@ import { RouterModule, Routes } from '@angular/router';
 import { Layout } from './shared/components/layout/layout';
 
 const routes: Routes = [
+  // Redirect root to auth/login
   { 
     path: '', 
-    redirectTo: '/auth/login', 
+    redirectTo: '/auth', 
     pathMatch: 'full' 
   },
+  // Public routes
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth-module').then(m => m.AuthModule)
   },
+  // Private routes (protected by Layout)
   {
     path: '',
     component: Layout,
@@ -39,9 +42,10 @@ const routes: Routes = [
       }
     ]
   },
+  // Wildcard route - must be last
   { 
     path: '**', 
-    redirectTo: '/dashboard' 
+    redirectTo: '/auth' 
   }
 ];
 
