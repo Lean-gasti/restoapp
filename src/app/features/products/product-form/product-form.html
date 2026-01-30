@@ -152,8 +152,10 @@
             @if (isSaving) {
               <mat-spinner diameter="20"></mat-spinner>
             } @else {
-              <mat-icon>save</mat-icon>
-              {{ isEditMode ? 'Guardar Cambios' : 'Crear Producto' }}
+              <ng-container>
+                <mat-icon>save</mat-icon>
+                {{ isEditMode ? 'Guardar cambios' : 'Crear Producto' }}
+              </ng-container>
             }
           </button>
         </div>
