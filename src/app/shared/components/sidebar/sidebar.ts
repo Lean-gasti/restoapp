@@ -27,7 +27,7 @@ export class Sidebar implements OnInit, OnDestroy {
   company: ICompany | null = null;
   
   navItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'dashboard', route: APP_ROUTES.DASHBOARD },
+    // { label: 'Dashboard', icon: 'dashboard', route: APP_ROUTES.DASHBOARD },
     { label: 'Productos', icon: 'restaurant_menu', route: APP_ROUTES.PRODUCTS.LIST },
     { label: 'Categorías', icon: 'category', route: APP_ROUTES.CATEGORIES.LIST },
     { label: 'Catálogos', icon: 'menu_book', route: APP_ROUTES.CATALOGS.LIST },

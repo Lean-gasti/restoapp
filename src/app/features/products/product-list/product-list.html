@@ -9,66 +9,66 @@
   
   <div class="products-content">
     <!-- Sidebar with Categories -->
-    <aside class="categories-sidebar">
+    <!-- <aside class="categories-sidebar">
       <h3 class="sidebar-title">Categorías</h3>
       <div class="category-list">
         <button 
           class="category-item" 
           [class.active]="!selectedCategory"
-          (click)="selectedCategory = ''; onCategoryChange()">
+          (click)="selectedCategory = '';">
           <span>Todas</span>
-          <span class="category-count">{{ products.length }}</span>
+          <span class="category-count">{{ products().length }}</span>
         </button>
         @for (category of categories; track category._id) {
           <button 
             class="category-item" 
             [class.active]="selectedCategory === category._id"
-            (click)="selectedCategory = category._id || ''; onCategoryChange()">
+            (click)="selectedCategory = category._id || '';">
             <span>{{ category.name }}</span>
             <mat-icon class="expand-icon">expand_more</mat-icon>
           </button>
         }
       </div>
-    </aside>
+    </aside> -->
     
     <!-- Main Content -->
     <main class="products-main">
       <!-- Filters Bar -->
       <div class="filters-bar">
-        <mat-form-field appearance="outline" class="search-field">
+        <!-- <mat-form-field appearance="outline" class="search-field">
           <mat-label>Buscar productos</mat-label>
           <input matInput [formControl]="searchControl" placeholder="Nombre o descripción...">
           <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+        </mat-form-field> -->
         
-        <mat-form-field appearance="outline" class="filter-field">
+        <!-- <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Disponibilidad</mat-label>
-          <mat-select [(value)]="selectedAvailability" (selectionChange)="onAvailabilityChange()">
+          <mat-select [(value)]="selectedAvailability" (selectionChange)="() => console.log("")">
             <mat-option value="">Todas</mat-option>
             <mat-option value="true">Disponibles</mat-option>
             <mat-option value="false">No disponibles</mat-option>
           </mat-select>
         </mat-form-field>
-        
-        @if (searchControl.value || selectedCategory || selectedAvailability) {
+         -->
+        <!-- @if (searchControl.value || selectedCategory || selectedAvailability) {
           <button mat-stroked-button class="clear-btn" (click)="clearFilters()">
             <mat-icon>clear</mat-icon>
             Limpiar
           </button>
-        }
+        } -->
       </div>
       
       <!-- Products Grid -->
-      @if (isLoading) {
+      @if (isLoading()) {
         <div class="loading-container">
           <mat-spinner diameter="40"></mat-spinner>
           <span>Cargando productos...</span>
         </div>
-      } @else if (filteredProducts.length === 0) {
+      } @else if (products().length === 0) {
         <div class="empty-state">
           <mat-icon>restaurant_menu</mat-icon>
           <h3>No hay productos</h3>
-          <p>{{ searchControl.value || selectedCategory ? 'No se encontraron productos con los filtros aplicados.' : 'Comienza agregando tu primer producto.' }}</p>
+          <!-- <p>{{ searchControl.value || selectedCategory ? 'No se encontraron productos con los filtros aplicados.' : 'Comienza agregando tu primer producto.' }}</p> -->
           <button mat-raised-button color="primary" (click)="addProduct()">
             <mat-icon>add</mat-icon>
             Agregar Producto
@@ -76,7 +76,7 @@
         </div>
       } @else {
         <div class="products-grid">
-          @for (product of filteredProducts; track product._id) {
+          @for (product of products(); track product._id) {
             <div class="product-card" [class.unavailable]="!product.available">
               <div class="product-image">
                 @if (product.imageUrl) {
@@ -101,7 +101,7 @@
                 
                 <div class="product-category">
                   <mat-icon>folder</mat-icon>
-                  <span>{{ getCategoryName(product.categoryId) }}</span>
+                  <!-- <span>{{ getCategoryName(product.categoryId) }}</span> -->
                 </div>
               </div>
               

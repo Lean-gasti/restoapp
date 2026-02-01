@@ -104,15 +104,14 @@ export class DashboardHome implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          if (response.success && response.data) {
-            this.products = response.data;
+          if (response) {
+            this.products = response;
             this.updateStats();
           }
         },
         error: () => {
-          // Mock data for demo
-          this.products = this.getMockProducts();
-          this.updateStats();
+          
+          
         }
       });
     
@@ -121,16 +120,16 @@ export class DashboardHome implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          if (response.success && response.data) {
-            this.categories = response.data;
+          if (response) {
+            this.categories = response;
             this.stats.totalCategories = this.categories.length;
             this.calculateProductsByCategory();
           }
         },
         error: () => {
-          this.categories = this.getMockCategories();
-          this.stats.totalCategories = this.categories.length;
-          this.calculateProductsByCategory();
+ 
+
+
         }
       });
     
@@ -139,17 +138,16 @@ export class DashboardHome implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          if (response.success && response.data) {
-            this.catalogs = response.data;
-            this.stats.totalCatalogs = this.catalogs.length;
-            this.stats.activeCatalogs = this.catalogs.filter(c => c.isActive).length;
+          if (response) {
+            // this.catalogs = response;
+            // this.stats.totalCatalogs = response.length;
+            // this.stats.activeCatalogs = response.filter(c => c.isActive).length;
           }
           this.isLoading = false;
         },
         error: () => {
-          this.catalogs = this.getMockCatalogs();
-          this.stats.totalCatalogs = this.catalogs.length;
-          this.stats.activeCatalogs = this.catalogs.filter(c => c.isActive).length;
+          this.stats.totalCatalogs = 0;
+          this.stats.activeCatalogs = 0;
           this.isLoading = false;
         }
       });
@@ -181,32 +179,5 @@ export class DashboardHome implements OnInit, OnDestroy {
   
   navigateTo(route: string): void {
     this.router.navigate([route]);
-  }
-  
-  // Mock data for demo purposes
-  private getMockProducts(): IProduct[] {
-    return [
-      { _id: '1', name: 'Bruschetta al Pomodoro', price: 8.50, available: true, categoryId: '1', companyId: '1' },
-      { _id: '2', name: 'Calamari Fritti', price: 12.00, available: true, categoryId: '1', companyId: '1' },
-      { _id: '3', name: 'Truffle Pasta', price: 22.00, available: true, categoryId: '2', companyId: '1' },
-      { _id: '4', name: 'Grilled Salmon', price: 25.00, available: true, categoryId: '2', companyId: '1' },
-      { _id: '5', name: 'Mojito Classic', price: 9.00, available: true, categoryId: '3', companyId: '1' },
-      { _id: '6', name: 'Tiramisu', price: 7.50, available: false, categoryId: '4', companyId: '1' }
-    ];
-  }
-  
-  private getMockCategories(): ICategory[] {
-    return [
-      { _id: '1', name: 'Starters', companyId: '1' },
-      { _id: '2', name: 'Main Course', companyId: '1' },
-      { _id: '3', name: 'Drinks', companyId: '1' },
-      { _id: '4', name: 'Desserts', companyId: '1' }
-    ];
-  }
-  
-  private getMockCatalogs(): ICatalog[] {
-    return [
-      { _id: '1', name: 'Menú Principal', description: 'Carta principal del restaurante', companyId: '1', isActive: true, configuration: { view_prices: true } }
-    ];
   }
 }

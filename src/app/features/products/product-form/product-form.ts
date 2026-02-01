@@ -68,8 +68,8 @@ export class ProductForm implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          if (response.success && response.data) {
-            this.categories = response.data;
+          if (response) {
+            this.categories = response;
           }
         },
         error: () => {
@@ -91,8 +91,8 @@ export class ProductForm implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          if (response.success && response.data) {
-            this.patchForm(response.data);
+          if (response) {
+            this.patchForm(response);
           }
           this.isLoading = false;
         },

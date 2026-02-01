@@ -1,11 +1,11 @@
 <div class="builder-page">
   <app-header 
-    [title]="catalog?.name || 'Constructor de Catálogo'"
+    [title]="catalog()?.name || 'Constructor de Catálogo'"
     subtitle="Arrastra productos para agregar al catálogo">
   </app-header>
   
   <div class="builder-content">
-    @if (isLoading) {
+    @if (isLoading()) {
       <div class="loading-container">
         <mat-spinner diameter="40"></mat-spinner>
         <span>Cargando...</span>
@@ -18,9 +18,9 @@
             <h3>Productos Disponibles</h3>
             <mat-form-field appearance="outline" class="category-filter">
               <mat-label>Categoría</mat-label>
-              <mat-select [(value)]="selectedCategory">
+              <mat-select [value]="selectedCategory()" (selectionChange)="selectedCategory.set($event.value)">
                 <mat-option value="">Todas</mat-option>
-                @for (category of categories; track category._id) {
+                @for (category of categories(); track category._id) {
                   <mat-option [value]="category._id">{{ category.name }}</mat-option>
                 }
               </mat-select>
@@ -31,12 +31,12 @@
             class="products-list"
             cdkDropList
             #availableList="cdkDropList"
-            [cdkDropListData]="filteredProducts"
+            [cdkDropListData]="availableProducts()"
             [cdkDropListConnectedTo]="[catalogList]"
             id="availableList"
             (cdkDropListDropped)="drop($event)">
             
-            @for (product of filteredProducts; track product._id) {
+            @for (product of filteredProducts(); track product._id) {
               <div 
                 class="product-item" 
                 cdkDrag
@@ -61,7 +61,7 @@
               </div>
             }
             
-            @if (filteredProducts.length === 0) {
+            @if (filteredProducts().length === 0) {
               <div class="empty-list">
                 <mat-icon>inventory_2</mat-icon>
                 <span>No hay productos disponibles</span>
@@ -74,19 +74,19 @@
         <div class="catalog-panel">
           <div class="panel-header">
             <h3>Items del Catálogo</h3>
-            <span class="item-count">{{ catalogProducts.length }} productos</span>
+            <span class="item-count">{{ catalogProducts().length }} productos</span>
           </div>
           
           <div 
             class="catalog-list"
             cdkDropList
             #catalogList="cdkDropList"
-            [cdkDropListData]="catalogProducts"
+            [cdkDropListData]="catalogProducts()"
             [cdkDropListConnectedTo]="[availableList]"
             id="catalogList"
             (cdkDropListDropped)="drop($event)">
             
-            @for (product of catalogProducts; track product._id; let i = $index) {
+            @for (product of catalogProducts(); track product._id; let i = $index) {
               <div 
                 class="catalog-item" 
                 cdkDrag>
@@ -102,7 +102,7 @@
                   }
                 </div>
                 <div class="item-info">
-                  <span class="item-name">{{ product.customName || product.name }}</span>
+                  <span class="item-name">{{ product.name }}</span>
                   <span class="item-price">${{ product.price | number:'1.2-2' }}</span>
                 </div>
                 <button mat-icon-button class="remove-btn" (click)="removeFromCatalog(product)">
@@ -113,7 +113,7 @@
               </div>
             }
             
-            @if (catalogProducts.length === 0) {
+            @if (catalogProducts().length === 0) {
               <div class="empty-catalog">
                 <mat-icon>playlist_add</mat-icon>
                 <span>Arrastra productos aquí</span>

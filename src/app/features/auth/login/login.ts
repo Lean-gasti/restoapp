@@ -38,13 +38,13 @@ export class Login {
     
     this.authService.login({ email: email!, password: password! }).subscribe({
       next: () => {
-        this.router.navigate([APP_ROUTES.DASHBOARD]);
+        this.router.navigate([APP_ROUTES.PRODUCTS.LIST]);
       },
       error: (error) => {
         this.isLoading = false;
         // For demo, navigate anyway
         this.snackBar.open('Bienvenido al sistema', 'Cerrar', { duration: 3000 });
-        this.router.navigate([APP_ROUTES.DASHBOARD]);
+        this.router.navigate([APP_ROUTES.PRODUCTS.LIST]);
       }
     });
   }

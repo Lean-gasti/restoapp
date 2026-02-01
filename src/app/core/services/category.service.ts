@@ -1,36 +1,30 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 
 import { API_ENDPOINTS } from '../constants/api-endpoints.constant';
 import { ApiResponse } from '../models/api-response.model';
 import { ICategory, ICategoryCreate, ICategoryUpdate } from '../models/category.model';
-
+import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
 export class CategoryService {
-  private readonly baseUrl = API_ENDPOINTS.BASE_URL;
+  private readonly baseUrl = environment.apiUrl;
   
-  private categoriesSubject = new BehaviorSubject<ICategory[]>([]);
-  public categories$ = this.categoriesSubject.asObservable();
-  
-  private loadingSubject = new BehaviorSubject<boolean>(false);
-  public loading$ = this.loadingSubject.asObservable();
+  private _categories: WritableSignal<ICategory[]> = signal([]);
+  public categories = this._categories.asReadonly();
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<ApiResponse<ICategory[]>> {
-    this.loadingSubject.next(true);
-    
-    return this.http.get<ApiResponse<ICategory[]>>(
+  getAll(): Observable<ICategory[]> {
+    return this.http.get<ICategory[]>(
       `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.BASE}`
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
-          this.categoriesSubject.next(response.data);
+        if (response) {
+          this._categories.set(response);
         }
-        this.loadingSubject.next(false);
       })
     );
   }
@@ -41,32 +35,32 @@ export class CategoryService {
     );
   }
 
-  create(category: ICategoryCreate): Observable<ApiResponse<ICategory>> {
-    return this.http.post<ApiResponse<ICategory>>(
+  create(category: ICategoryCreate): Observable<ICategory> {
+    return this.http.post<ICategory>(
       `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.BASE}`,
       category
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
-          const current = this.categoriesSubject.value;
-          this.categoriesSubject.next([...current, response.data]);
+        if (response && response) {
+          const current = this.categories();
+          this._categories.set([...current, response]);
         }
       })
     );
   }
 
-  update(id: string, category: ICategoryUpdate): Observable<ApiResponse<ICategory>> {
-    return this.http.put<ApiResponse<ICategory>>(
+  update(id: string, category: ICategoryUpdate): Observable<ICategory> {
+    return this.http.put<ICategory>(
       `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.BY_ID(id)}`,
       category
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
-          const current = this.categoriesSubject.value;
+        if (response) {
+          const current = this.categories();
           const index = current.findIndex(c => c._id === id);
           if (index !== -1) {
-            current[index] = response.data;
-            this.categoriesSubject.next([...current]);
+            current[index] = response;
+            this._categories.set([...current]);
           }
         }
       })
@@ -75,18 +69,13 @@ export class CategoryService {
 
   delete(id: string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.BY_ID(id)}`
+      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.BY_ID('asd')}`
     ).pipe(
-      tap(response => {
-        if (response.success) {
-          const current = this.categoriesSubject.value;
-          this.categoriesSubject.next(current.filter(c => c._id !== id));
-        }
-      })
+      tap(() => {
+        const current = this.categories();
+        this._categories.set(current.filter(c => c._id !== id));
+      }),
     );
   }
 
-  getCategoriesValue(): ICategory[] {
-    return this.categoriesSubject.value;
-  }
 }

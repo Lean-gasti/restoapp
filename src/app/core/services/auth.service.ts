@@ -14,6 +14,7 @@ import {
   SetNewPasswordRequest
 } from '../models/api-response.model';
 import { IUser } from '../models/user.model';
+import { environment } from '../../../environments/environment';
 
 const TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -23,7 +24,7 @@ const USER_KEY = 'user_data';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly baseUrl = API_ENDPOINTS.BASE_URL;
+  private readonly baseUrl = environment.apiUrl;
   
   private currentUserSubject = new BehaviorSubject<IUser | null>(this.getStoredUser());
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -36,14 +37,14 @@ export class AuthService {
     private router: Router
   ) {}
 
-  login(credentials: LoginRequest): Observable<ApiResponse<LoginResponse>> {
-    return this.http.post<ApiResponse<LoginResponse>>(
+  login(credentials: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(
       `${this.baseUrl}${API_ENDPOINTS.AUTH.LOGIN}`,
       credentials
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
-          this.setSession(response.data);
+        if (response) {
+          this.setSession(response);
         }
       }),
       catchError(error => {
@@ -137,10 +138,10 @@ export class AuthService {
   }
 
   private setSession(authResult: LoginResponse): void {
-    this.setToken(authResult.token);
+    this.setToken(authResult.accessToken);
     localStorage.setItem(REFRESH_TOKEN_KEY, authResult.refreshToken);
     const user: IUser = {
-      _id: authResult.user._id,
+      _id: authResult.user.id,
       email: authResult.user.email,
       role: authResult.user.role as any,
       companyId: authResult.user.companyId

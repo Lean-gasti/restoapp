@@ -5,12 +5,13 @@ import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { API_ENDPOINTS } from '../constants/api-endpoints.constant';
 import { ApiResponse } from '../models/api-response.model';
 import { ICompany, ICompanyUpdate } from '../models/company.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CompanyService {
-  private readonly baseUrl = API_ENDPOINTS.BASE_URL;
+  private readonly baseUrl = environment.apiUrl;
   
   private companySubject = new BehaviorSubject<ICompany | null>(null);
   public company$ = this.companySubject.asObservable();

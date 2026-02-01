@@ -36,12 +36,12 @@
     }
     
     <!-- Categories List -->
-    @if (isLoading) {
+    @if (isLoading()) {
       <div class="loading-container">
         <mat-spinner diameter="40"></mat-spinner>
         <span>Cargando categorías...</span>
       </div>
-    } @else if (categories.length === 0) {
+    } @else if (categories().length === 0) {
       <div class="empty-state">
         <mat-icon>folder_open</mat-icon>
         <h3>No hay categorías</h3>
@@ -53,7 +53,7 @@
       </div>
     } @else {
       <div class="categories-list">
-        @for (category of categories; track category._id) {
+        @for (category of categories(); track category._id) {
           <div class="category-card">
             @if (editingCategoryId === category._id) {
               <!-- Edit Mode -->
@@ -86,7 +86,6 @@
                 </div>
                 <div class="category-details">
                   <span class="category-name">{{ category.name }}</span>
-                  <span class="category-count">{{ getProductCount(category._id || '') }} productos</span>
                 </div>
               </div>
               <div class="category-actions">

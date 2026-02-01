@@ -7,7 +7,7 @@ export interface ApiResponse<T> {
 
 export interface PaginatedResponse<T> {
   data: T[];
-  total: number;
+  totalCount: number;
   page: number;
   limit: number;
   totalPages: number;
@@ -19,13 +19,13 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  token: string;
+  accessToken: string;
   refreshToken: string;
   user: {
-    _id: string;
+    id: string;
     email: string;
     role: string;
-    companyId: string;
+    companyId?: string;
   };
 }
 

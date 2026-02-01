@@ -1,184 +1,121 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, Signal, computed, signal, WritableSignal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { CatalogService } from '../../../core/services/catalog.service';
 import { ProductService } from '../../../core/services/product.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { APP_ROUTES } from '../../../core/constants/app-routes.constant';
-import { ICatalog, ICatalogItem } from '../../../core/models/catalog.model';
+import { ICatalog } from '../../../core/models/catalog.model';
 import { IProduct } from '../../../core/models/product.model';
 import { ICategory } from '../../../core/models/category.model';
-
-interface CatalogProduct extends IProduct {
-  customName?: string;
-  customDescription?: string;
-  order?: number;
-}
 
 @Component({
   selector: 'app-catalog-builder',
   standalone: false,
   templateUrl: './catalog-builder.html',
-  styleUrl: './catalog-builder.scss'
+  styleUrl: './catalog-builder.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CatalogBuilder implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  
-  catalog: ICatalog | null = null;
+export class CatalogBuilder implements OnInit {
+  private catalogService: CatalogService = inject(CatalogService);
+  private productService: ProductService = inject(ProductService);
+  private categoryService: CategoryService = inject(CategoryService);
+
+  catalog: Signal<ICatalog | null> = computed(() => this.catalogService.catalogs().data.find(c => c._id === this.catalogId) || null);
   catalogId: string | null = null;
+
+  availableProducts: Signal<IProduct[]> = this.productService.products;
+  catalogProducts: WritableSignal<IProduct[]> = signal<IProduct[]>([]);
+  categories: Signal<ICategory[]> = this.categoryService.categories;
   
-  availableProducts: IProduct[] = [];
-  catalogProducts: CatalogProduct[] = [];
-  categories: ICategory[] = [];
-  
-  selectedCategory = '';
-  isLoading = true;
+  selectedCategory = signal('');
+  isLoading = signal(true);
   isSaving = false;
   
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private catalogService: CatalogService,
-    private productService: ProductService,
-    private categoryService: CategoryService,
     private snackBar: MatSnackBar
   ) {}
   
   ngOnInit(): void {
     this.catalogId = this.route.snapshot.paramMap.get('id');
+    console.log(this.catalogId);
     if (this.catalogId) {
       this.loadData();
     }
   }
   
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-  
   loadData(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     
-    // Load categories
-    this.categoryService.getAll()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            this.categories = response.data;
-          }
-        },
-        error: () => {
-          this.categories = [
-            { _id: '1', name: 'Starters', companyId: '1' },
-            { _id: '2', name: 'Main Course', companyId: '1' },
-            { _id: '3', name: 'Drinks', companyId: '1' },
-            { _id: '4', name: 'Desserts', companyId: '1' }
-          ];
-        }
-      });
-    
-    // Load catalog
-    if (this.catalogId) {
-      this.catalogService.getById(this.catalogId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            if (response.success && response.data) {
-              this.catalog = response.data;
-            }
-          },
-          error: () => {
-            this.catalog = {
-              _id: this.catalogId!,
-              name: 'Menú Principal',
-              description: 'Carta principal',
-              companyId: '1',
-              isActive: true,
-              configuration: { view_prices: true }
-            };
-          }
-        });
-    }
-    
-    // Load products
-    this.productService.getAll()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            this.availableProducts = response.data.filter(p => p.available);
-          }
-          this.isLoading = false;
-        },
-        error: () => {
-          this.availableProducts = this.getMockProducts();
-          this.isLoading = false;
-        }
-      });
+    // Load categories and products
+    this.categoryService.getAll().subscribe();
+    this.productService.getAll().subscribe({
+      next: () => {
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.snackBar.open('Error al cargar productos', 'Cerrar', { duration: 3000 });
+      }
+    });
   }
   
-  get filteredProducts(): IProduct[] {
-    if (!this.selectedCategory) {
-      return this.availableProducts.filter(p => 
-        !this.catalogProducts.find(cp => cp._id === p._id)
-      );
-    }
-    return this.availableProducts.filter(p => 
-      p.categoryId === this.selectedCategory && 
-      !this.catalogProducts.find(cp => cp._id === p._id)
-    );
-  }
+  filteredProducts: Signal<IProduct[]> = computed(() => {
+    const searchCategory = this.selectedCategory();
+    const currentCatalogProducts = this.catalogProducts();
+    const available = this.availableProducts();
+    
+    return available.filter((p: IProduct) => {
+      const matchesCategory = !searchCategory || p.categoryId === searchCategory;
+      const notInCatalog = !currentCatalogProducts.some((cp: IProduct) => cp._id === p._id);
+      return matchesCategory && notInCatalog;
+    });
+  });
   
   getCategoryName(categoryId: string): string {
-    const category = this.categories.find(c => c._id === categoryId);
+    const category = this.categories().find(c => c._id === categoryId);
     return category?.name || '';
   }
   
-  drop(event: CdkDragDrop<any[]>): void {
+  drop(event: CdkDragDrop<IProduct[]>): void {
     if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      if (event.container.id === 'catalogList') {
+        const data = [...this.catalogProducts()];
+        moveItemInArray(data, event.previousIndex, event.currentIndex);
+        this.catalogProducts.set(data);
+      }
     } else {
       if (event.container.id === 'catalogList') {
-        // Adding to catalog
+        // Adding from available to catalog
         const product = event.previousContainer.data[event.previousIndex];
-        const catalogProduct: CatalogProduct = {
-          ...product,
-          order: this.catalogProducts.length
-        };
-        this.catalogProducts.splice(event.currentIndex, 0, catalogProduct);
+        this.addToCatalog(product);
       } else {
-        // Removing from catalog
-        this.catalogProducts.splice(event.previousIndex, 1);
+        // Removing from catalog to available
+        const product = event.previousContainer.data[event.previousIndex];
+        this.removeFromCatalog(product);
       }
     }
-    this.updateOrder();
   }
   
   addToCatalog(product: IProduct): void {
-    const catalogProduct: CatalogProduct = {
-      ...product,
-      order: this.catalogProducts.length
-    };
-    this.catalogProducts.push(catalogProduct);
-    this.updateOrder();
-  }
-  
-  removeFromCatalog(product: CatalogProduct): void {
-    const index = this.catalogProducts.findIndex(p => p._id === product._id);
-    if (index !== -1) {
-      this.catalogProducts.splice(index, 1);
-      this.updateOrder();
+    const current = this.catalogProducts();
+    if (!current.some((p: IProduct) => p._id === product._id)) {
+      this.catalogProducts.set([...current, product]);
     }
   }
   
+  removeFromCatalog(product: IProduct): void {
+    const current = this.catalogProducts();
+    this.catalogProducts.set(current.filter((p: IProduct) => p._id !== product._id));
+  }
+  
   updateOrder(): void {
-    this.catalogProducts.forEach((p, index) => {
-      p.order = index;
+    this.catalogProducts().forEach((p: IProduct, index: number) => {
+      
     });
   }
   
@@ -195,14 +132,5 @@ export class CatalogBuilder implements OnInit, OnDestroy {
   goBack(): void {
     this.router.navigate([APP_ROUTES.CATALOGS.LIST]);
   }
-  
-  private getMockProducts(): IProduct[] {
-    return [
-      { _id: '1', name: 'Bruschetta al Pomodoro', description: 'Toasted bread with fresh tomatoes', price: 8.50, imageUrl: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=400', available: true, categoryId: '1', companyId: '1' },
-      { _id: '2', name: 'Calamari Fritti', description: 'Crispy fried squid rings', price: 12.00, imageUrl: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400', available: true, categoryId: '1', companyId: '1' },
-      { _id: '3', name: 'Truffle Pasta', description: 'Fresh tagliatelle with black truffle', price: 22.00, imageUrl: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400', available: true, categoryId: '2', companyId: '1' },
-      { _id: '4', name: 'Grilled Salmon', description: 'Served with roasted vegetables', price: 25.00, imageUrl: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400', available: true, categoryId: '2', companyId: '1' },
-      { _id: '5', name: 'Mojito Classic', description: 'Rum, mint, lime, sugar, and soda', price: 9.00, imageUrl: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=400', available: true, categoryId: '3', companyId: '1' }
-    ];
-  }
+
 }

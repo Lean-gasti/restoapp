@@ -1,94 +1,68 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
-
+import { Injectable, signal, WritableSignal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { API_ENDPOINTS } from '../constants/api-endpoints.constant';
-import { ApiResponse } from '../models/api-response.model';
+import { ApiResponse, PaginatedResponse } from '../models/api-response.model';
 import { 
   ICatalog, 
   ICatalogCreate, 
   ICatalogUpdate, 
-  ICatalogItem, 
-  ICatalogItemCreate 
 } from '../models/catalog.model';
-
+import { ApiService } from '../infrastructure/api.service';
 @Injectable({
   providedIn: 'root'
 })
 export class CatalogService {
-  private readonly baseUrl = API_ENDPOINTS.BASE_URL;
-  
-  private catalogsSubject = new BehaviorSubject<ICatalog[]>([]);
-  public catalogs$ = this.catalogsSubject.asObservable();
-  
-  private activeCatalogSubject = new BehaviorSubject<ICatalog | null>(null);
-  public activeCatalog$ = this.activeCatalogSubject.asObservable();
-  
-  private loadingSubject = new BehaviorSubject<boolean>(false);
-  public loading$ = this.loadingSubject.asObservable();
+  private _catalogs: WritableSignal<PaginatedResponse<ICatalog>> = signal({data: [], totalCount: 0, page: 1, limit: 10, totalPages: 1});
+  public catalogs = this._catalogs.asReadonly();
 
-  constructor(private http: HttpClient) {}
+  constructor(private apiService: ApiService) {}
 
   // Catalog CRUD
-  getAll(): Observable<ApiResponse<ICatalog[]>> {
-    this.loadingSubject.next(true);
+  getAll(): Observable<PaginatedResponse<ICatalog>> {
     
-    return this.http.get<ApiResponse<ICatalog[]>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOGS.BASE}`
+    return this.apiService.get<PaginatedResponse<ICatalog>>(
+      `${API_ENDPOINTS.CATALOGS.BASE}`
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
-          this.catalogsSubject.next(response.data);
-        }
-        this.loadingSubject.next(false);
-      })
-    );
-  }
-
-  getById(id: string): Observable<ApiResponse<ICatalog>> {
-    return this.http.get<ApiResponse<ICatalog>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOGS.BY_ID(id)}`
-    );
-  }
-
-  getActive(): Observable<ApiResponse<ICatalog>> {
-    return this.http.get<ApiResponse<ICatalog>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOGS.ACTIVE}`
-    ).pipe(
-      tap(response => {
-        if (response.success && response.data) {
-          this.activeCatalogSubject.next(response.data);
+        if (response) {
+          this._catalogs.set(response);
         }
       })
     );
   }
 
-  create(catalog: ICatalogCreate): Observable<ApiResponse<ICatalog>> {
-    return this.http.post<ApiResponse<ICatalog>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOGS.BASE}`,
+  getById(id: string): Observable<ICatalog> {
+    return this.apiService.get<ICatalog>(
+      `${API_ENDPOINTS.CATALOGS.BY_ID(id)}`
+    );
+  }
+
+  create(catalog: ICatalogCreate): Observable<ICatalog> {
+    return this.apiService.post<ICatalog>(
+      `${API_ENDPOINTS.CATALOGS.BASE}`,
       catalog
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
-          const current = this.catalogsSubject.value;
-          this.catalogsSubject.next([...current, response.data]);
+        if (response) {
+          const current = this.catalogs();
+          this._catalogs.set({...current, data: [...current.data, response]});
         }
       })
     );
   }
 
-  update(id: string, catalog: ICatalogUpdate): Observable<ApiResponse<ICatalog>> {
-    return this.http.put<ApiResponse<ICatalog>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOGS.BY_ID(id)}`,
+  update(id: string, catalog: ICatalogUpdate): Observable<ICatalog> {
+    return this.apiService.put<ICatalog>(
+      `${API_ENDPOINTS.CATALOGS.BY_ID(id)}`,
       catalog
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
-          const current = this.catalogsSubject.value;
-          const index = current.findIndex(c => c._id === id);
+        if (response) {
+          const current = this.catalogs();
+          const index = current.data.findIndex(c => c._id === id);
           if (index !== -1) {
-            current[index] = response.data;
-            this.catalogsSubject.next([...current]);
+            current.data[index] = response;
+            this._catalogs.set({...current});
           }
         }
       })
@@ -96,75 +70,16 @@ export class CatalogService {
   }
 
   delete(id: string): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOGS.BY_ID(id)}`
+    return this.apiService.delete<ApiResponse<void>>(
+      `${API_ENDPOINTS.CATALOGS.BY_ID(id)}`
     ).pipe(
       tap(response => {
         if (response.success) {
-          const current = this.catalogsSubject.value;
-          this.catalogsSubject.next(current.filter(c => c._id !== id));
+          const current = this.catalogs();
+          this._catalogs.set({...current, data: current.data.filter(c => c._id !== id)});
         }
       })
     );
   }
 
-  activate(id: string): Observable<ApiResponse<ICatalog>> {
-    return this.http.patch<ApiResponse<ICatalog>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOGS.ACTIVATE(id)}`,
-      {}
-    ).pipe(
-      tap(response => {
-        if (response.success && response.data) {
-          // Update all catalogs to inactive except the activated one
-          const current = this.catalogsSubject.value.map(c => ({
-            ...c,
-            isActive: c._id === id
-          }));
-          this.catalogsSubject.next(current);
-          this.activeCatalogSubject.next(response.data);
-        }
-      })
-    );
-  }
-
-  // Catalog Items
-  getCatalogItems(catalogId: string): Observable<ApiResponse<ICatalogItem[]>> {
-    return this.http.get<ApiResponse<ICatalogItem[]>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOG_ITEMS.BY_CATALOG(catalogId)}`
-    );
-  }
-
-  createItem(item: ICatalogItemCreate): Observable<ApiResponse<ICatalogItem>> {
-    return this.http.post<ApiResponse<ICatalogItem>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOG_ITEMS.BASE}`,
-      item
-    );
-  }
-
-  updateItem(id: string, item: Partial<ICatalogItem>): Observable<ApiResponse<ICatalogItem>> {
-    return this.http.put<ApiResponse<ICatalogItem>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOG_ITEMS.BY_ID(id)}`,
-      item
-    );
-  }
-
-  deleteItem(id: string): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOG_ITEMS.BY_ID(id)}`
-    );
-  }
-
-  reorderItem(id: string, newOrder: number): Observable<ApiResponse<ICatalogItem>> {
-    return this.http.patch<ApiResponse<ICatalogItem>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOG_ITEMS.REORDER(id)}`,
-      { order: newOrder }
-    );
-  }
-
-  bulkAddItems(items: ICatalogItemCreate[]): Observable<ApiResponse<ICatalogItem[]>> {
-    return this.http.post<ApiResponse<ICatalogItem[]>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATALOG_ITEMS.BULK_ADD}`,
-      { items }
-    );
-  }
 }

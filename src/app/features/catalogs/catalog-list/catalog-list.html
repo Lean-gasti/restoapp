@@ -8,12 +8,12 @@
   </app-header>
   
   <div class="catalogs-content">
-    @if (isLoading) {
+    @if (isLoading()) {
       <div class="loading-container">
         <mat-spinner diameter="40"></mat-spinner>
         <span>Cargando catálogos...</span>
       </div>
-    } @else if (catalogs.length === 0) {
+    } @else if (catalogs().data?.length === 0) {
       <div class="empty-state">
         <mat-icon>menu_book</mat-icon>
         <h3>No hay catálogos</h3>
@@ -25,7 +25,7 @@
       </div>
     } @else {
       <div class="catalogs-grid">
-        @for (catalog of catalogs; track catalog._id) {
+        @for (catalog of catalogs().data; track catalog._id) {
           <div class="catalog-card" [class.active]="catalog.isActive">
             <div class="catalog-header">
               <div class="catalog-status">
