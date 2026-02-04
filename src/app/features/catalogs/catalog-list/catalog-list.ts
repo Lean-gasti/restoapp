@@ -2,8 +2,6 @@ import { Component, OnInit, OnDestroy, inject, Signal, signal } from '@angular/c
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 import { CatalogService } from '../../../core/services/catalog.service';
 import { APP_ROUTES } from '../../../core/constants/app-routes.constant';

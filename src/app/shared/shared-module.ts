@@ -35,6 +35,7 @@ import { Header } from './components/header/header';
 import { Layout } from './components/layout/layout';
 import { Loader } from './components/loader/loader';
 import { ConfirmationDialog } from './components/confirmation-dialog/confirmation-dialog';
+import { FormDialogComponent } from './components/form-dialog/form-dialog';
 
 const MATERIAL_MODULES = [
   MatCardModule,
@@ -68,7 +69,8 @@ const COMPONENTS = [
   Header,
   Layout,
   Loader,
-  ConfirmationDialog
+  ConfirmationDialog,
+  FormDialogComponent
 ];
 
 @NgModule({

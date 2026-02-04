@@ -12,7 +12,40 @@ import { environment } from '../../../environments/environment';
 export class ProductService {
   private readonly baseUrl = environment.apiUrl;
 
-  private _productsState = signal<IProduct[]>([]);
+  private _productsState = signal<IProduct[]>([
+    {
+      name: 'Papas fritas',
+      price: 1000,
+      available: true,
+      companyId: '',
+      categoryId: '',
+      _id: '1'
+    },
+    {
+      name: 'Milanesa',
+      price: 1500,
+      available: true,
+      companyId: '',
+      categoryId: '',
+      _id: '2'
+    },
+    {
+      name: 'Lomo',
+      price: 2000,
+      available: true,
+      companyId: '',
+      categoryId: '',
+      _id: '3'
+    },
+    {
+      name: 'Pechuga',
+      price: 1800,
+      available: true,
+      companyId: '',
+      categoryId: '',
+      _id: '4'
+    }
+  ]);
   public products = this._productsState.asReadonly();
   
   constructor(private api: ApiService) {}

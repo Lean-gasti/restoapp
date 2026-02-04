@@ -94,18 +94,6 @@ export class AuthService {
     );
   }
 
-  getCurrentUser(): Observable<ApiResponse<IUser>> {
-    return this.http.get<ApiResponse<IUser>>(
-      `${this.baseUrl}${API_ENDPOINTS.AUTH.ME}`
-    ).pipe(
-      tap(response => {
-        if (response.success && response.data) {
-          this.setUser(response.data);
-        }
-      })
-    );
-  }
-
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);

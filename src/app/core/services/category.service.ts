@@ -1,6 +1,6 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 import { API_ENDPOINTS } from '../constants/api-endpoints.constant';
 import { ApiResponse } from '../models/api-response.model';
@@ -19,7 +19,7 @@ export class CategoryService {
 
   getAll(): Observable<ICategory[]> {
     return this.http.get<ICategory[]>(
-      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.BASE}`
+      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.GET_ALL}`
     ).pipe(
       tap(response => {
         if (response) {
@@ -29,15 +29,9 @@ export class CategoryService {
     );
   }
 
-  getById(id: string): Observable<ApiResponse<ICategory>> {
-    return this.http.get<ApiResponse<ICategory>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.BY_ID(id)}`
-    );
-  }
-
   create(category: ICategoryCreate): Observable<ICategory> {
     return this.http.post<ICategory>(
-      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.BASE}`,
+      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.CREATE}`,
       category
     ).pipe(
       tap(response => {
@@ -51,7 +45,7 @@ export class CategoryService {
 
   update(id: string, category: ICategoryUpdate): Observable<ICategory> {
     return this.http.put<ICategory>(
-      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.BY_ID(id)}`,
+      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.MODIFY(id)}`,
       category
     ).pipe(
       tap(response => {
@@ -69,7 +63,7 @@ export class CategoryService {
 
   delete(id: string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(
-      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.BY_ID('asd')}`
+      `${this.baseUrl}${API_ENDPOINTS.CATEGORIES.DELETE(id)}`
     ).pipe(
       tap(() => {
         const current = this.categories();

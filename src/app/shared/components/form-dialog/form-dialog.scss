@@ -1,0 +1,31 @@
+.form-dialog {
+  min-width: 320px;
+}
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-dialog-actions {
+  padding: 16px 0 0;
+  gap: 8px;
+
+  button {
+    border-radius: 8px;
+    padding: 8px 20px;
+  }
+}
+
+h2[mat-dialog-title] {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1f36;
+  margin-bottom: 8px;
+}

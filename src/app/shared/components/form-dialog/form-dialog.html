@@ -1,0 +1,49 @@
+<div class="form-dialog">
+  <h2 mat-dialog-title>{{ data.title }}</h2>
+  
+  <mat-dialog-content>
+    <form [formGroup]="form" class="dialog-form">
+      @for (field of data.fields; track field.name) {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ field.label }}</mat-label>
+          
+          @switch (field.type) {
+            @case ('text') {
+              <input matInput [formControlName]="field.name" type="text">
+            }
+            @case ('number') {
+              <input matInput [formControlName]="field.name" type="number">
+            }
+            @case ('textarea') {
+              <textarea matInput [formControlName]="field.name" rows="3"></textarea>
+            }
+            @case ('select') {
+              <mat-select [formControlName]="field.name">
+                @for (option of field.options; track option.value) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+            }
+          }
+          
+          @if (form.get(field.name)?.invalid && form.get(field.name)?.touched) {
+            <mat-error>Este campo es requerido</mat-error>
+          }
+        </mat-form-field>
+      }
+    </form>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button (click)="onCancel()">
+      {{ data.cancelText }}
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()"
+      [disabled]="form.invalid">
+      {{ data.submitText }}
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -1,7 +1,7 @@
 <div class="builder-page">
   <app-header 
     [title]="catalog()?.name || 'Constructor de Catálogo'"
-    subtitle="Arrastra productos para agregar al catálogo">
+    subtitle="Organiza tu catálogo en secciones y arrastra productos">
   </app-header>
   
   <div class="builder-content">
@@ -31,10 +31,10 @@
             class="products-list"
             cdkDropList
             #availableList="cdkDropList"
-            [cdkDropListData]="availableProducts()"
-            [cdkDropListConnectedTo]="[catalogList]"
+            [cdkDropListData]="filteredProducts()"
+            [cdkDropListConnectedTo]="getSectionDropListIds()"
             id="availableList"
-            (cdkDropListDropped)="drop($event)">
+            (cdkDropListDropped)="dropInAvailable($event)">
             
             @for (product of filteredProducts(); track product._id) {
               <div 
@@ -53,9 +53,6 @@
                   <span class="product-category">{{ getCategoryName(product.categoryId) }}</span>
                 </div>
                 <span class="product-price">${{ product.price | number:'1.2-2' }}</span>
-                <button mat-icon-button class="add-btn" (click)="addToCatalog(product)">
-                  <mat-icon>add_circle</mat-icon>
-                </button>
                 
                 <div class="drag-placeholder" *cdkDragPlaceholder></div>
               </div>
@@ -70,54 +67,95 @@
           </div>
         </div>
         
-        <!-- Catalog Items Panel -->
+        <!-- Catalog Sections Panel -->
         <div class="catalog-panel">
           <div class="panel-header">
-            <h3>Items del Catálogo</h3>
-            <span class="item-count">{{ catalogProducts().length }} productos</span>
+            <h3>Secciones del Catálogo</h3>
+            <button mat-stroked-button color="primary" (click)="addSection()">
+              <mat-icon>add</mat-icon>
+              Nueva Sección
+            </button>
           </div>
           
-          <div 
-            class="catalog-list"
-            cdkDropList
-            #catalogList="cdkDropList"
-            [cdkDropListData]="catalogProducts()"
-            [cdkDropListConnectedTo]="[availableList]"
-            id="catalogList"
-            (cdkDropListDropped)="drop($event)">
-            
-            @for (product of catalogProducts(); track product._id; let i = $index) {
-              <div 
-                class="catalog-item" 
-                cdkDrag>
-                <div class="item-handle" cdkDragHandle>
-                  <mat-icon>drag_indicator</mat-icon>
-                </div>
-                <span class="item-order">{{ i + 1 }}</span>
-                <div class="item-image">
-                  @if (product.imageUrl) {
-                    <img [src]="product.imageUrl" [alt]="product.name">
-                  } @else {
-                    <mat-icon>restaurant</mat-icon>
-                  }
-                </div>
-                <div class="item-info">
-                  <span class="item-name">{{ product.name }}</span>
-                  <span class="item-price">${{ product.price | number:'1.2-2' }}</span>
-                </div>
-                <button mat-icon-button class="remove-btn" (click)="removeFromCatalog(product)">
-                  <mat-icon>remove_circle</mat-icon>
+          <div class="sections-container">
+            @if (catalogSections().length === 0) {
+              <div class="empty-catalog">
+                <mat-icon>folder_open</mat-icon>
+                <span>No hay secciones</span>
+                <p>Crea una sección para organizar tus productos</p>
+                <button mat-raised-button color="primary" (click)="addSection()">
+                  <mat-icon>add</mat-icon>
+                  Crear Primera Sección
                 </button>
-                
-                <div class="drag-placeholder" *cdkDragPlaceholder></div>
               </div>
             }
             
-            @if (catalogProducts().length === 0) {
-              <div class="empty-catalog">
-                <mat-icon>playlist_add</mat-icon>
-                <span>Arrastra productos aquí</span>
-                <p>Los productos aparecerán en el orden que los coloques</p>
+            @for (sectionData of catalogSections(); track sectionIndex; let sectionIndex = $index) {
+              <div class="section-card" [class.expanded]="isSectionExpanded(sectionIndex)">
+                <div class="section-header" (click)="toggleSection(sectionIndex)">
+                  <div class="section-info">
+                    <button mat-icon-button class="expand-btn">
+                      <mat-icon>{{ isSectionExpanded(sectionIndex) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                    </button>
+                    <div class="section-title">
+                      <span class="section-name">{{ sectionData.section.name }}</span>
+                      <span class="section-count">{{ sectionData.products.length }} productos</span>
+                    </div>
+                  </div>
+                  <div class="section-actions" (click)="$event.stopPropagation()">
+                    <button mat-icon-button (click)="editSection(sectionData)" matTooltip="Editar sección">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="deleteSection(sectionData)" matTooltip="Eliminar sección" [disabled]="sectionData.products.length > 0">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                
+                @if (isSectionExpanded(sectionIndex)) {
+                  <div 
+                    class="section-products"
+                    cdkDropList
+                    [id]="'section-' + sectionIndex"
+                    [cdkDropListData]="sectionData.products"
+                    [cdkDropListConnectedTo]="['availableList'].concat(getSectionDropListIds())"
+                    (cdkDropListDropped)="dropInSection($event, sectionIndex)">
+                    
+                    @for (product of sectionData.products; track product._id; let i = $index) {
+                      <div 
+                        class="catalog-item" 
+                        cdkDrag>
+                        <div class="item-handle" cdkDragHandle>
+                          <mat-icon>drag_indicator</mat-icon>
+                        </div>
+                        <span class="item-order">{{ i + 1 }}</span>
+                        <div class="item-image">
+                          @if (product.imageUrl) {
+                            <img [src]="product.imageUrl" [alt]="product.name">
+                          } @else {
+                            <mat-icon>restaurant</mat-icon>
+                          }
+                        </div>
+                        <div class="item-info">
+                          <span class="item-name">{{ product.name }}</span>
+                          <span class="item-price">${{ product.price | number:'1.2-2' }}</span>
+                        </div>
+                        <button mat-icon-button class="remove-btn" (click)="removeProductFromSection(product)">
+                          <mat-icon>remove_circle</mat-icon>
+                        </button>
+                        
+                        <div class="drag-placeholder" *cdkDragPlaceholder></div>
+                      </div>
+                    }
+                    
+                    @if (sectionData.products.length === 0) {
+                      <div class="empty-section">
+                        <mat-icon>add_circle_outline</mat-icon>
+                        <span>Arrastra productos aquí</span>
+                      </div>
+                    }
+                  </div>
+                }
               </div>
             }
           </div>
@@ -134,8 +172,8 @@
           mat-raised-button 
           color="primary" 
           (click)="saveCatalog()"
-          [disabled]="isSaving">
-          @if (isSaving) {
+          [disabled]="isSaving()">
+          @if (isSaving()) {
             <mat-spinner diameter="20"></mat-spinner>
           } @else {
             <ng-container>

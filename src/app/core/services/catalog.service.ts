@@ -4,10 +4,9 @@ import { API_ENDPOINTS } from '../constants/api-endpoints.constant';
 import { ApiResponse, PaginatedResponse } from '../models/api-response.model';
 import { 
   ICatalog, 
-  ICatalogCreate, 
-  ICatalogUpdate, 
 } from '../models/catalog.model';
 import { ApiService } from '../infrastructure/api.service';
+import { ICatalogCreate, ICatalogUpdate } from '../../shared/interfaces/catalog-item.interface';
 @Injectable({
   providedIn: 'root'
 })
@@ -21,7 +20,7 @@ export class CatalogService {
   getAll(): Observable<PaginatedResponse<ICatalog>> {
     
     return this.apiService.get<PaginatedResponse<ICatalog>>(
-      `${API_ENDPOINTS.CATALOGS.BASE}`
+      `${API_ENDPOINTS.CATALOGS.GET_ALL}`
     ).pipe(
       tap(response => {
         if (response) {
@@ -31,15 +30,9 @@ export class CatalogService {
     );
   }
 
-  getById(id: string): Observable<ICatalog> {
-    return this.apiService.get<ICatalog>(
-      `${API_ENDPOINTS.CATALOGS.BY_ID(id)}`
-    );
-  }
-
   create(catalog: ICatalogCreate): Observable<ICatalog> {
     return this.apiService.post<ICatalog>(
-      `${API_ENDPOINTS.CATALOGS.BASE}`,
+      `${API_ENDPOINTS.CATALOGS.CREATE}`,
       catalog
     ).pipe(
       tap(response => {
@@ -52,8 +45,8 @@ export class CatalogService {
   }
 
   update(id: string, catalog: ICatalogUpdate): Observable<ICatalog> {
-    return this.apiService.put<ICatalog>(
-      `${API_ENDPOINTS.CATALOGS.BY_ID(id)}`,
+    return this.apiService.patch<ICatalog>(
+      `${API_ENDPOINTS.CATALOGS.MODIFY(id)}`,
       catalog
     ).pipe(
       tap(response => {
@@ -71,7 +64,7 @@ export class CatalogService {
 
   delete(id: string): Observable<ApiResponse<void>> {
     return this.apiService.delete<ApiResponse<void>>(
-      `${API_ENDPOINTS.CATALOGS.BY_ID(id)}`
+      `${API_ENDPOINTS.CATALOGS.DELETE(id)}`
     ).pipe(
       tap(response => {
         if (response.success) {
