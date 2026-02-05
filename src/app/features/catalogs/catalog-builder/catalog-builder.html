@@ -1,8 +1,13 @@
 <div class="builder-page">
-  <app-header 
-    [title]="catalog()?.name || 'Constructor de Catálogo'"
-    subtitle="Organiza tu catálogo en secciones y arrastra productos">
-  </app-header>
+  <div class="catalog-header-container">
+    <app-header 
+      [title]="catalog()?.name || 'Constructor de Catálogo'"
+      subtitle="Organiza tu catálogo en secciones y arrastra productos">
+    </app-header>
+    <button mat-icon-button class="edit-catalog-btn" (click)="editCatalogName()" matTooltip="Editar nombre del catálogo">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
   
   <div class="builder-content">
     @if (isLoading()) {
@@ -77,7 +82,12 @@
             </button>
           </div>
           
-          <div class="sections-container">
+          <div 
+            class="sections-container"
+            cdkDropList
+            id="sectionsDropList"
+            [cdkDropListData]="catalogSections()"
+            (cdkDropListDropped)="dropSection($event)">
             @if (catalogSections().length === 0) {
               <div class="empty-catalog">
                 <mat-icon>folder_open</mat-icon>
@@ -91,9 +101,12 @@
             }
             
             @for (sectionData of catalogSections(); track sectionIndex; let sectionIndex = $index) {
-              <div class="section-card" [class.expanded]="isSectionExpanded(sectionIndex)">
+              <div class="section-card" [class.expanded]="isSectionExpanded(sectionIndex)" cdkDrag>
                 <div class="section-header" (click)="toggleSection(sectionIndex)">
                   <div class="section-info">
+                    <button mat-icon-button class="section-drag-handle" cdkDragHandle (click)="$event.stopPropagation()">
+                      <mat-icon>drag_indicator</mat-icon>
+                    </button>
                     <button mat-icon-button class="expand-btn">
                       <mat-icon>{{ isSectionExpanded(sectionIndex) ? 'expand_more' : 'chevron_right' }}</mat-icon>
                     </button>
@@ -124,7 +137,8 @@
                     @for (product of sectionData.products; track product._id; let i = $index) {
                       <div 
                         class="catalog-item" 
-                        cdkDrag>
+                        cdkDrag
+                        [cdkDragData]="product">
                         <div class="item-handle" cdkDragHandle>
                           <mat-icon>drag_indicator</mat-icon>
                         </div>
@@ -168,20 +182,22 @@
           <mat-icon>arrow_back</mat-icon>
           Volver
         </button>
-        <button 
-          mat-raised-button 
-          color="primary" 
-          (click)="saveCatalog()"
-          [disabled]="isSaving()">
-          @if (isSaving()) {
-            <mat-spinner diameter="20"></mat-spinner>
-          } @else {
-            <ng-container>
-              <mat-icon>save</mat-icon>
-              Guardar Catálogo
-            </ng-container>
-          }
-        </button>
+        @if (hasChanges()) {
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="saveCatalog()"
+            [disabled]="isSaving()">
+            @if (isSaving()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <ng-container>
+                <mat-icon>save</mat-icon>
+                Guardar Cambios
+              </ng-container>
+            }
+          </button>
+        }
       </div>
     }
   </div>

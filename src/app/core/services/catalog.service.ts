@@ -66,11 +66,9 @@ export class CatalogService {
     return this.apiService.delete<ApiResponse<void>>(
       `${API_ENDPOINTS.CATALOGS.DELETE(id)}`
     ).pipe(
-      tap(response => {
-        if (response.success) {
-          const current = this.catalogs();
-          this._catalogs.set({...current, data: current.data.filter(c => c._id !== id)});
-        }
+      tap(() => {
+        const current = this.catalogs();
+        this._catalogs.set({...current, data: current.data.filter(c => c._id !== id)});
       })
     );
   }

@@ -61,9 +61,14 @@ export class CatalogSectionService {
    * Actualiza una sección existente
    */
   update(catalogId: string, id: string, section: Partial<ICatalogItemCreate>): Observable<ICatalogItem> {
-    return this.apiService.put<ICatalogItem>(
+    // Filtrar solo los campos con valores definidos para el PATCH
+    const patchData = Object.entries(section)
+      .filter(([_, value]) => value !== undefined)
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+    
+    return this.apiService.patch<ICatalogItem>(
       API_ENDPOINTS.CATALOG_ITEMS.MODIFY(catalogId, id),
-      section
+      patchData
     ).pipe(
       tap(response => {
         if (response) {

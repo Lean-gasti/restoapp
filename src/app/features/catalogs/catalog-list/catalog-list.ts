@@ -2,11 +2,13 @@ import { Component, OnInit, OnDestroy, inject, Signal, signal } from '@angular/c
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Validators } from '@angular/forms';
 
 import { CatalogService } from '../../../core/services/catalog.service';
 import { APP_ROUTES } from '../../../core/constants/app-routes.constant';
 import { ICatalog } from '../../../core/models/catalog.model';
 import { ConfirmationDialog } from '../../../shared/components/confirmation-dialog/confirmation-dialog';
+import { FormDialogComponent } from '../../../shared/components/form-dialog/form-dialog';
 import { PaginatedResponse } from '../../../core/models/api-response.model';
 
 @Component({
@@ -44,23 +46,37 @@ export class CatalogList implements OnInit {
   }
   
   createCatalog(): void {
-    // For simplicity, we'll create a catalog with default values
-    const newCatalog = {
-      name: 'Nuevo Catálogo',
-      description: 'Descripción del catálogo',
-      configuration: { view_prices: true }
-    };
+    const dialogRef = this.dialog.open(FormDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Nuevo Catálogo',
+        fields: [
+          { name: 'name', label: 'Nombre del catálogo', type: 'text', validators: [Validators.required] },
+          { name: 'description', label: 'Descripción (opcional)', type: 'textarea' }
+        ]
+      }
+    });
     
-    this.catalogService.create(newCatalog)
-      .subscribe({
-        next: (response) => {
-          this.snackBar.open('Catálogo creado', 'Cerrar', { duration: 3000 });
-          this.openBuilder(response);
-        },
-        error: () => {
-          this.snackBar.open('Error al crear catálogo', 'Cerrar', { duration: 3000 });
-        }
-      });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const newCatalog = {
+          name: result.name,
+          description: result.description || '',
+          configuration: { view_prices: true }
+        };
+        
+        this.catalogService.create(newCatalog)
+          .subscribe({
+            next: (response) => {
+              this.snackBar.open('Catálogo creado', 'Cerrar', { duration: 3000 });
+              this.openBuilder(response);
+            },
+            error: () => {
+              this.snackBar.open('Error al crear catálogo', 'Cerrar', { duration: 3000 });
+            }
+          });
+      }
+    });
   }
   
   openBuilder(catalog: ICatalog): void {

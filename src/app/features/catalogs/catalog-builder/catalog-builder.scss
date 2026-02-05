@@ -4,6 +4,29 @@
   min-height: 100vh;
 }
 
+.catalog-header-container {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+
+  app-header {
+    flex: 1;
+  }
+
+  .edit-catalog-btn {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    transform: translateY(-50%);
+    color: #6b7280;
+
+    &:hover {
+      color: #667eea;
+      background: rgba(102, 126, 234, 0.1);
+    }
+  }
+}
+
 .builder-content {
   flex: 1;
   display: flex;
@@ -141,6 +164,35 @@
   .expanded & {
     color: #667eea;
   }
+}
+
+.section-drag-handle {
+  cursor: grab;
+  color: #9ca3af;
+
+  &:hover {
+    color: #667eea;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// Section card drag styles
+.section-card.cdk-drag-preview {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  opacity: 0.9;
+}
+
+.section-card.cdk-drag-placeholder {
+  opacity: 0.3;
+  background: #e5e7eb;
+  border: 2px dashed #9ca3af;
+}
+
+.sections-container.cdk-drop-list-dragging .section-card:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .section-title {

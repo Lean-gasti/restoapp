@@ -47,12 +47,21 @@ export class CatalogBuilder implements OnInit {
   // Secciones del catálogo con sus productos
   catalogSections: WritableSignal<ICatalogSectionWithProducts[]> = signal<ICatalogSectionWithProducts[]>([]);
   
+  // Estado original de las secciones para detectar cambios (productIds|order)
+  private originalSectionsState: Map<string, { products: string, order: number }> = new Map();
+  
   // Estado UI para secciones expandidas (por índice)
   expandedSections = signal<Set<number>>(new Set());
   
   selectedCategory = signal('');
   isLoading = signal(true);
   isSaving = signal(false);
+  
+  // Computed para detectar si hay cambios pendientes
+  hasChanges = computed(() => {
+    const sections = this.catalogSections();
+    return sections.some(s => this.hasSectionChanged(s));
+  });
   
   constructor(
     private route: ActivatedRoute,
@@ -80,6 +89,9 @@ export class CatalogBuilder implements OnInit {
         // Mapear secciones con sus productos
         const sectionsWithProducts = sections.map(section => this.mapSectionWithProducts(section));
         this.catalogSections.set(sectionsWithProducts);
+        
+        // Guardar estado original para detectar cambios
+        this.saveOriginalState(sectionsWithProducts);
         
         // Expandir todas las secciones por defecto (por índice)
         const expandedIndices = new Set(sectionsWithProducts.map((_, index) => index));
@@ -129,6 +141,53 @@ export class CatalogBuilder implements OnInit {
   }
   
   // ================== Secciones ==================
+  
+  /** Reordena las secciones al hacer drag & drop */
+  dropSection(event: CdkDragDrop<ICatalogSectionWithProducts[]>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    
+    const sections = [...this.catalogSections()];
+    moveItemInArray(sections, event.previousIndex, event.currentIndex);
+    
+    // Actualizar el order de cada sección
+    sections.forEach((s, index) => {
+      s.section.order = index;
+    });
+    
+    this.catalogSections.set(sections);
+    
+    // Reorganizar las secciones expandidas para mantener consistencia
+    this.updateExpandedSectionsAfterReorder(event.previousIndex, event.currentIndex);
+  }
+  
+  /** Actualiza los índices de secciones expandidas después de reordenar */
+  private updateExpandedSectionsAfterReorder(previousIndex: number, currentIndex: number): void {
+    const expanded = this.expandedSections();
+    const newExpanded = new Set<number>();
+    
+    expanded.forEach(index => {
+      if (index === previousIndex) {
+        // La sección movida va a su nueva posición
+        newExpanded.add(currentIndex);
+      } else if (previousIndex < currentIndex) {
+        // Movimiento hacia abajo: índices entre prev+1 y curr bajan 1
+        if (index > previousIndex && index <= currentIndex) {
+          newExpanded.add(index - 1);
+        } else {
+          newExpanded.add(index);
+        }
+      } else {
+        // Movimiento hacia arriba: índices entre curr y prev-1 suben 1
+        if (index >= currentIndex && index < previousIndex) {
+          newExpanded.add(index + 1);
+        } else {
+          newExpanded.add(index);
+        }
+      }
+    });
+    
+    this.expandedSections.set(newExpanded);
+  }
   
   toggleSection(sectionIndex: number): void {
     const expanded = new Set(this.expandedSections());
@@ -260,8 +319,21 @@ export class CatalogBuilder implements OnInit {
     } else {
       // Transferir desde otra lista (availableList u otra sección)
       const product = event.item.data as IProduct;
-      if (product && !sectionData.products.some(p => p._id === product._id)) {
-        const newProducts = [...sectionData.products];
+      if (!product) return;
+      
+      // Primero remover de la sección origen si viene de otra sección
+      const sourceSectionIndex = this.findSectionIndexByProduct(product._id!);
+      if (sourceSectionIndex !== -1) {
+        this.removeProductFromSectionByIndex(sourceSectionIndex, product._id!);
+      }
+      
+      // Luego agregar a la sección destino (re-obtener sections después de la modificación)
+      const updatedSections = this.catalogSections();
+      const targetSectionData = updatedSections[sectionIndex];
+      
+      // Verificar que no esté ya en la sección destino
+      if (!targetSectionData.products.some(p => p._id === product._id)) {
+        const newProducts = [...targetSectionData.products];
         newProducts.splice(event.currentIndex, 0, product);
         this.updateSectionProductsByIndex(sectionIndex, newProducts);
       }
@@ -335,28 +407,41 @@ export class CatalogBuilder implements OnInit {
     this.isSaving.set(true);
     
     const sections = this.catalogSections();
-    console.log(this.catalogSections());
-    return;
-    const updatePromises = sections.map(s => 
-      this.sectionService.update(this.catalogId!, s.section._id!, {
-        name: s.section.name,
-        description: s.section.description,
-        order: s.section.order,
-        catalogId: s.section.catalogId,
-        products: s.section.products
-      })
-    );
+      
+    // Filtrar solo las secciones que tienen cambios
+    const changedSections = sections.filter(s => this.hasSectionChanged(s));
     
-    if (updatePromises.length === 0) {
+    if (changedSections.length === 0) {
       this.isSaving.set(false);
-      this.snackBar.open('Catálogo guardado', 'Cerrar', { duration: 3000 });
+      this.snackBar.open('No hay cambios para guardar', 'Cerrar', { duration: 3000 });
       return;
     }
     
+    const updatePromises = changedSections.map(s => {
+      // Limpiar products: solo enviar productId, sin _ids de MongoDB
+      const cleanProducts = s.section.products.map(p => ({
+        productId: p.productId
+      }));
+      
+      // Construir el objeto de actualización
+      const updateData: { order: number; products?: { productId: string }[] } = {
+        order: s.section.order
+      };
+      
+      // Solo incluir products si no está vacío
+      if (cleanProducts.length > 0) {
+        updateData.products = cleanProducts;
+      }
+      
+      return this.sectionService.update(this.catalogId!, s.section._id!, updateData);
+    });
+    
     forkJoin(updatePromises).subscribe({
       next: () => {
+        // Actualizar el estado original después de guardar
+        this.saveOriginalState(this.catalogSections());
         this.isSaving.set(false);
-        this.snackBar.open('Catálogo guardado exitosamente', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(`${changedSections.length} sección(es) guardada(s)`, 'Cerrar', { duration: 3000 });
       },
       error: () => {
         this.isSaving.set(false);
@@ -367,6 +452,38 @@ export class CatalogBuilder implements OnInit {
   
   goBack(): void {
     this.router.navigate([APP_ROUTES.CATALOGS.LIST]);
+  }
+  
+  editCatalogName(): void {
+    const currentCatalog = this.catalog();
+    if (!currentCatalog) return;
+    
+    const dialogRef = this.dialog.open(FormDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Editar Catálogo',
+        fields: [
+          { name: 'name', label: 'Nombre del catálogo', type: 'text', value: currentCatalog.name, validators: [Validators.required] },
+          { name: 'description', label: 'Descripción (opcional)', type: 'textarea', value: currentCatalog.description || '' }
+        ]
+      }
+    });
+    
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && this.catalogId) {
+        this.catalogService.update(this.catalogId, {
+          name: result.name,
+          description: result.description || ''
+        }).subscribe({
+          next: () => {
+            this.snackBar.open('Catálogo actualizado', 'Cerrar', { duration: 3000 });
+          },
+          error: () => {
+            this.snackBar.open('Error al actualizar el catálogo', 'Cerrar', { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 
   /** Helper para conectar drop lists - usa índice para IDs únicos */
@@ -390,5 +507,57 @@ export class CatalogBuilder implements OnInit {
     const newSections = [...sections];
     newSections[sectionIndex] = newSection;
     this.catalogSections.set(newSections);
+  }
+  
+  /** Busca el índice de la sección que contiene un producto */
+  private findSectionIndexByProduct(productId: string): number {
+    const sections = this.catalogSections();
+    return sections.findIndex(s => s.products.some(p => p._id === productId));
+  }
+  
+  /** Remueve un producto de una sección por índice */
+  private removeProductFromSectionByIndex(sectionIndex: number, productId: string): void {
+    const sections = this.catalogSections();
+    const sectionData = sections[sectionIndex];
+    
+    const newSection: ICatalogSectionWithProducts = {
+      section: {
+        ...sectionData.section,
+        products: sectionData.section.products.filter(p => p.productId !== productId)
+      },
+      products: sectionData.products.filter(p => p._id !== productId)
+    };
+    
+    const newSections = [...sections];
+    newSections[sectionIndex] = newSection;
+    this.catalogSections.set(newSections);
+  }
+  
+  /** Guarda el estado original de las secciones para detectar cambios */
+  private saveOriginalState(sections: ICatalogSectionWithProducts[]): void {
+    this.originalSectionsState.clear();
+    sections.forEach(s => {
+      if (s.section._id) {
+        const productIds = s.section.products.map(p => p.productId).sort().join(',');
+        this.originalSectionsState.set(s.section._id, {
+          products: productIds,
+          order: s.section.order
+        });
+      }
+    });
+  }
+  
+  /** Verifica si una sección tiene cambios respecto al estado original */
+  private hasSectionChanged(sectionData: ICatalogSectionWithProducts): boolean {
+    if (!sectionData.section._id) return true;
+    
+    const original = this.originalSectionsState.get(sectionData.section._id);
+    if (original === undefined) return true;
+    
+    const currentProducts = sectionData.section.products.map(p => p.productId).sort().join(',');
+    const productsChanged = original.products !== currentProducts;
+    const orderChanged = original.order !== sectionData.section.order;
+    
+    return productsChanged || orderChanged;
   }
 }
