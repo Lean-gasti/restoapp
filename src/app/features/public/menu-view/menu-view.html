@@ -1,0 +1,121 @@
+<div class="menu-container">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Cargando menú...</p>
+    </div>
+  } @else if (error()) {
+    <!-- Error State -->
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <h2>{{ error() }}</h2>
+      <p>El menú que buscas no existe o no está disponible.</p>
+    </div>
+  } @else {
+    <!-- Menu Content -->
+    <header class="menu-header">
+      @if (company(); as comp) {
+        <div class="company-info">
+          @if (comp.logoUrl) {
+            <img [src]="comp.logoUrl" [alt]="comp.name" class="company-logo">
+          }
+          <h1 class="company-name">{{ comp.name }}</h1>
+          @if (comp.location) {
+            <p class="company-location">
+              <mat-icon>location_on</mat-icon>
+              {{ comp.location }}
+            </p>
+          }
+        </div>
+      }
+    </header>
+
+    <!-- Catalog Selection (when no specific catalog selected) -->
+    @if (!catalog() && catalogs().length > 0) {
+      <div class="catalogs-list">
+        <h2>Nuestros Menús</h2>
+        <div class="catalog-cards">
+          @for (cat of catalogs(); track cat._id) {
+            <a [routerLink]="[cat._id]" class="catalog-card">
+              <mat-icon>menu_book</mat-icon>
+              <h3>{{ cat.name }}</h3>
+              @if (cat.description) {
+                <p>{{ cat.description }}</p>
+              }
+            </a>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Single Catalog View -->
+    @if (catalog(); as cat) {
+      <div class="catalog-view">
+        <div class="catalog-header">
+          <h2>{{ cat.name }}</h2>
+          @if (cat.description) {
+            <p class="catalog-description">{{ cat.description }}</p>
+          }
+        </div>
+
+        <!-- Expandable Sections -->
+        @for (section of sections(); track section._id; let i = $index) {
+          <section class="menu-section">
+            <button 
+              class="section-header" 
+              (click)="toggleSection(i)"
+              [class.expanded]="isSectionExpanded(i)">
+              <h3 class="section-title">{{ section.name }}</h3>
+              <mat-icon class="expand-icon">
+                {{ isSectionExpanded(i) ? 'expand_less' : 'expand_more' }}
+              </mat-icon>
+            </button>
+
+            @if (isSectionExpanded(i)) {
+              @if (section.description) {
+                <p class="section-description">{{ section.description }}</p>
+              }
+
+              <div class="products-grid">
+                @for (product of section.products; track product.productId) {
+                  <div class="product-card" [class.with-image]="product.imageUrl">
+                    @if (product.imageUrl) {
+                      <img 
+                        [src]="product.imageUrl" 
+                        [alt]="product.name"
+                        class="product-image"
+                        loading="lazy">
+                    }
+                    <div class="product-content">
+                      <div class="product-info">
+                        <h4 class="product-name">{{ product.name }}</h4>
+                        @if (product.description) {
+                          <p class="product-description">{{ product.description }}</p>
+                        }
+                      </div>
+                      @if (product.price) {
+                        <span class="product-price">{{ formatPrice(product.price) }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        }
+      </div>
+    }
+
+    <!-- WhatsApp Button -->
+    @if (company()?.whatsapp; as whatsapp) {
+      <a 
+        [href]="'https://wa.me/' + whatsapp.replace('+', '')" 
+        target="_blank" 
+        class="whatsapp-fab">
+        <mat-icon>chat</mat-icon>
+        <span>Contactar</span>
+      </a>
+    }
+  }
+</div>

@@ -42,6 +42,11 @@ const routes: Routes = [
       }
     ]
   },
+  // Public menu route (no auth required)
+  {
+    path: 'menu',
+    loadChildren: () => import('./features/public/public.module').then(m => m.PublicModule)
+  },
   // Wildcard route - must be last
   { 
     path: '**', 
