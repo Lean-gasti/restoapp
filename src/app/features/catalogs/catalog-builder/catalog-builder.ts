@@ -88,7 +88,7 @@ export class CatalogBuilder implements OnInit {
       next: ({ sections }) => {
         // Mapear secciones con sus productos
         const sectionsWithProducts = sections.map(section => this.mapSectionWithProducts(section));
-        this.catalogSections.set(sectionsWithProducts);
+        this.catalogSections.set(sectionsWithProducts.sort((a, b) => a.section.order - b.section.order));
         
         // Guardar estado original para detectar cambios
         this.saveOriginalState(sectionsWithProducts);
@@ -106,10 +106,12 @@ export class CatalogBuilder implements OnInit {
     });
   }
   
-  /** Mapea una sección con sus productos completos */
+  /** Mapea una sección con sus productos completos, ordenados por order */
   private mapSectionWithProducts(section: ICatalogItem): ICatalogSectionWithProducts {
     const allProducts = this.availableProducts();
-    const products = section.products
+    // Ordenar productos por order antes de mapear
+    const sortedSectionProducts = [...section.products].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const products = sortedSectionProducts
       .map(p => allProducts.find(ap => ap._id === p.productId))
       .filter((p): p is IProduct => p !== undefined);
     
@@ -349,9 +351,10 @@ export class CatalogBuilder implements OnInit {
   }
   
   private updateSectionProducts(sectionData: ICatalogSectionWithProducts): void {
-    // Actualizar los productos de la sección
-    const newProducts: ICatalogItemProduct[] = sectionData.products.map(p => ({
-      productId: p._id!
+    // Actualizar los productos de la sección con order
+    const newProducts: ICatalogItemProduct[] = sectionData.products.map((p, index) => ({
+      productId: p._id!,
+      order: index
     }));
     
     sectionData.section.products = newProducts;
@@ -370,8 +373,9 @@ export class CatalogBuilder implements OnInit {
     // Verificar que no esté ya en la sección
     if (sectionData.products.some(p => p._id === product._id)) return;
     
+    const newOrder = sectionData.products.length;
     sectionData.products = [...sectionData.products, product];
-    sectionData.section.products = [...sectionData.section.products, { productId: product._id! }];
+    sectionData.section.products = [...sectionData.section.products, { productId: product._id!, order: newOrder }];
     
     // Actualizar el state
     const sections = this.catalogSections();
@@ -418,28 +422,35 @@ export class CatalogBuilder implements OnInit {
     }
     
     const updatePromises = changedSections.map(s => {
-      // Limpiar products: solo enviar productId, sin _ids de MongoDB
-      const cleanProducts = s.section.products.map(p => ({
-        productId: p.productId
+      // Limpiar products: enviar productId y order, sin _ids de MongoDB
+      const cleanProducts = s.section.products.map((p, index) => ({
+        productId: p.productId,
+        order: p.order ?? index
       }));
       
       // Construir el objeto de actualización
-      const updateData: { order: number; products?: { productId: string }[] } = {
-        order: s.section.order
+      const updateData: { order: number; products?: { productId: string; order: number }[] } = {
+        order: s.section.order,
+        products: cleanProducts
       };
       
-      // Solo incluir products si no está vacío
-      if (cleanProducts.length > 0) {
-        updateData.products = cleanProducts;
-      }
-      
-      return this.sectionService.update(this.catalogId!, s.section._id!, updateData);
+      return this.sectionService.update(this.catalogId!, s.section._id!, updateData)
     });
     
     forkJoin(updatePromises).subscribe({
       next: () => {
-        // Actualizar el estado original después de guardar
-        this.saveOriginalState(this.catalogSections());
+        // Normalizar el order en todas las secciones actuales antes de guardar estado
+        const normalizedSections = this.catalogSections().map(s => ({
+          section: {
+            ...s.section,
+            products: s.section.products.map((p, i) => ({ ...p, order: p.order ?? i }))
+          },
+          products: s.products
+        }));
+        this.catalogSections.set(normalizedSections);
+        
+        // Ahora guardar el estado original (hasChanges() retornará false)
+        this.saveOriginalState(normalizedSections);
         this.isSaving.set(false);
         this.snackBar.open(`${changedSections.length} sección(es) guardada(s)`, 'Cerrar', { duration: 3000 });
       },
@@ -491,7 +502,7 @@ export class CatalogBuilder implements OnInit {
     return this.catalogSections().map((_, index) => `section-${index}`);
   }
   
-  /** Actualiza los productos de una sección por índice */
+  /** Actualiza los productos de una sección por índice, incluyendo order */
   private updateSectionProductsByIndex(sectionIndex: number, products: IProduct[]): void {
     const sections = this.catalogSections();
     const sectionData = sections[sectionIndex];
@@ -499,7 +510,7 @@ export class CatalogBuilder implements OnInit {
     const newSection: ICatalogSectionWithProducts = {
       section: {
         ...sectionData.section,
-        products: products.map(p => ({ productId: p._id! }))
+        products: products.map((p, index) => ({ productId: p._id!, order: index }))
       },
       products: products
     };
@@ -538,9 +549,10 @@ export class CatalogBuilder implements OnInit {
     this.originalSectionsState.clear();
     sections.forEach(s => {
       if (s.section._id) {
-        const productIds = s.section.products.map(p => p.productId).sort().join(',');
+        // Incluir productId y order para detectar cambios de orden de productos
+        const productsWithOrder = s.section.products.map(p => `${p.productId}:${p.order ?? 0}`).join(',');
         this.originalSectionsState.set(s.section._id, {
-          products: productIds,
+          products: productsWithOrder,
           order: s.section.order
         });
       }
@@ -554,7 +566,8 @@ export class CatalogBuilder implements OnInit {
     const original = this.originalSectionsState.get(sectionData.section._id);
     if (original === undefined) return true;
     
-    const currentProducts = sectionData.section.products.map(p => p.productId).sort().join(',');
+    // Comparar productId y order para detectar cambios de orden de productos
+    const currentProducts = sectionData.section.products.map(p => `${p.productId}:${p.order ?? 0}`).join(',');
     const productsChanged = original.products !== currentProducts;
     const orderChanged = original.order !== sectionData.section.order;
     

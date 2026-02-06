@@ -11,6 +11,7 @@ export interface ICatalogItem {
 
 export interface ICatalogItemProduct {
   productId: string;
+  order?: number;
   customName?: string;
   customDescription?: string;
 }

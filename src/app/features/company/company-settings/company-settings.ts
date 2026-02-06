@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
@@ -20,7 +20,7 @@ export class CompanySettings implements OnInit, OnDestroy {
   companyForm: FormGroup;
   company: ICompany | null = null;
   
-  isLoading = true;
+  isLoading = signal(true);
   isSaving = false;
   logoPreview: string | null = null;
   
@@ -31,8 +31,8 @@ export class CompanySettings implements OnInit, OnDestroy {
     private snackBar: MatSnackBar
   ) {
     this.companyForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
+      name: [''],
+      slug: ['', [Validators.pattern(/^[a-z0-9-]+$/)]],
       logoUrl: [''],
       location: [''],
       whatsapp: ['', [Validators.pattern(/^\+?[0-9]{10,15}$/)]]
@@ -49,7 +49,7 @@ export class CompanySettings implements OnInit, OnDestroy {
   }
   
   loadCompany(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     const user = this.authService.getCurrentUserValue();
     
     if (user?.companyId) {
@@ -57,11 +57,11 @@ export class CompanySettings implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
-            if (response.success && response.data) {
-              this.company = response.data;
-              this.patchForm(response.data);
+            if (response) {
+              this.company = response;
+              this.patchForm(response);
             }
-            this.isLoading = false;
+            this.isLoading.set(false);
           },
           error: () => {
             // Mock data for demo
@@ -74,11 +74,11 @@ export class CompanySettings implements OnInit, OnDestroy {
               whatsapp: '+1234567890'
             };
             this.patchForm(this.company);
-            this.isLoading = false;
+            this.isLoading.set(false);
           }
         });
     } else {
-      this.isLoading = false;
+      this.isLoading.set(false);
     }
   }
   
@@ -118,7 +118,10 @@ export class CompanySettings implements OnInit, OnDestroy {
       return;
     }
     
-    if (!this.company?._id) return;
+    if (!this.company?._id) {
+      console.warn('No company ID available');
+      return;
+    }
     
     this.isSaving = true;
     const formData = this.companyForm.value;
@@ -126,12 +129,16 @@ export class CompanySettings implements OnInit, OnDestroy {
     this.companyService.update(this.company._id, formData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
+        next: (response) => {
+          if (response) {
+            this.company = response;
+          }
           this.onSuccess();
         },
-        error: () => {
-          // Mock success for demo
-          this.onSuccess();
+        error: (error) => {
+          console.error('Error updating company:', error);
+          this.isSaving = false;
+          this.snackBar.open('Error al guardar la configuración', 'Cerrar', { duration: 3000 });
         }
       });
   }
