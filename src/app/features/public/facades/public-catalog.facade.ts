@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { catchError, of, tap } from 'rxjs';
 
-import { PublicCatalogService, IPublicCatalogResponse } from '../services/public-catalog.service';
+import { PublicCatalogService } from '../../../core/services/public-catalog.service';
 import { ICompany } from '../../../core/models/company.model';
 import { ICatalog } from '../../../core/models/catalog.model';
 

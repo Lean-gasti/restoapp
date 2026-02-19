@@ -18,16 +18,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
-import { DragDropModule } from '@angular/cdk/drag-drop';
 
 // Components
 import { Sidebar } from './components/sidebar/sidebar';
@@ -52,16 +44,8 @@ const MATERIAL_MODULES = [
   MatSnackBarModule,
   MatTooltipModule,
   MatSelectModule,
-  MatChipsModule,
-  MatSlideToggleModule,
-  MatTableModule,
-  MatPaginatorModule,
-  MatSortModule,
-  MatTabsModule,
   MatExpansionModule,
-  MatBadgeModule,
   MatDividerModule,
-  DragDropModule
 ];
 
 const COMPONENTS = [

@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../../../environments/environment';
-import { ICompany } from '../../../core/models/company.model';
-import { ICatalog } from '../../../core/models/catalog.model';
+import { environment } from '../../../environments/environment';
+import { ICompany } from '../models/company.model';
+import { ICatalog } from '../models/catalog.model';
 
 export interface IPublicCatalogResponse {
   company: ICompany;
