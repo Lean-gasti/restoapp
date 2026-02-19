@@ -86,6 +86,41 @@
   }
 }
 
+.image-upload-container {
+  margin-bottom: 24px;
+}
+
+.upload-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: -8px;
+  margin-bottom: 16px;
+
+  button {
+    border-radius: 8px !important;
+    height: 40px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      margin-right: 0;
+    }
+  }
+
+  .file-hint {
+    font-size: 12px;
+    color: #6b7280;
+  }
+}
+
+.error-hint {
+  color: #ef4444 !important;
+  font-weight: 500;
+}
+
 .availability-toggle {
   display: flex;
   flex-direction: column;

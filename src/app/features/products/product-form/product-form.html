@@ -69,15 +69,38 @@
                   </mat-form-field>
                 </div>
                 
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>URL de imagen</mat-label>
-                  <input 
-                    matInput 
-                    formControlName="imageUrl" 
-                    placeholder="https://ejemplo.com/imagen.jpg"
-                    (blur)="onImageUrlChange()">
-                  <mat-icon matSuffix>image</mat-icon>
-                </mat-form-field>
+                <div class="image-upload-container">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>URL de imagen</mat-label>
+                    <input 
+                      matInput 
+                      formControlName="imageUrl" 
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                      (blur)="onImageUrlChange()">
+                    <mat-icon matSuffix>image</mat-icon>
+                    @if (fileError) {
+                      <mat-hint class="error-hint">{{ fileError }}</mat-hint>
+                    }
+                  </mat-form-field>
+
+                  <div class="upload-actions">
+                    <input 
+                      type="file" 
+                      #fileInput 
+                      (change)="onFileSelected($event)" 
+                      accept="image/*" 
+                      style="display: none">
+                    <button 
+                      mat-stroked-button 
+                      type="button" 
+                      color="primary"
+                      (click)="fileInput.click()">
+                      <mat-icon>cloud_upload</mat-icon>
+                      Subir imagen
+                    </button>
+                    <span class="file-hint">O ingresa una URL. Máx 2MB.</span>
+                  </div>
+                </div>
                 
                 <div class="availability-toggle">
                   <mat-slide-toggle formControlName="available" color="primary">

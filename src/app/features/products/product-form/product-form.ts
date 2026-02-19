@@ -29,6 +29,9 @@ export class ProductForm implements OnInit, OnDestroy {
   isSaving = false;
   
   imagePreview: string | null = null;
+  maxFileSize = 2 * 1024 * 1024; // 2MB
+  fileError: string | null = null;
+  selectedFile: File | null = null;
   
   constructor(
     private fb: FormBuilder,
@@ -132,6 +135,34 @@ export class ProductForm implements OnInit, OnDestroy {
   onImageUrlChange(): void {
     const imageUrl = this.productForm.get('imageUrl')?.value;
     this.imagePreview = imageUrl || null;
+    this.fileError = null;
+    this.selectedFile = null;
+  }
+  
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+    
+    // Check file size (2MB limit)
+    if (file.size > this.maxFileSize) {
+      this.fileError = 'La imagen es demasiado pesada. El máximo permitido es 2MB.';
+      this.snackBar.open(this.fileError, 'Cerrar', { duration: 3000 });
+      input.value = ''; // Reset input
+      return;
+    }
+
+    this.selectedFile = file;
+    this.fileError = null;
+    
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+      // Clear URL control as we are using a file
+      this.productForm.get('imageUrl')?.patchValue('');
+    };
+    reader.readAsDataURL(file);
   }
   
   onSubmit(): void {
@@ -141,10 +172,26 @@ export class ProductForm implements OnInit, OnDestroy {
     }
     
     this.isSaving = true;
-    const formData = this.productForm.value;
+    const formValue = this.productForm.value;
     
+    let submitData: any = formValue;
+    
+    if (this.selectedFile) {
+      const formData = new FormData();
+      Object.keys(formValue).forEach(key => {
+        if (key !== 'imageUrl' && formValue[key] !== null && formValue[key] !== undefined) {
+          formData.append(key, formValue[key]);
+        }
+      });
+      formData.append('image', this.selectedFile);
+      submitData = formData;
+    } else {
+      const { imageUrl, ...rest } = formValue;
+      submitData = rest;
+    }
+
     if (this.isEditMode && this.productId) {
-      this.productService.update(this.productId, formData)
+      this.productService.update(this.productId, submitData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -156,7 +203,7 @@ export class ProductForm implements OnInit, OnDestroy {
           }
         });
     } else {
-      this.productService.create(formData)
+      this.productService.create(submitData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
