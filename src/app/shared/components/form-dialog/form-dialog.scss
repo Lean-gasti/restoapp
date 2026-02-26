@@ -1,31 +1,110 @@
-.form-dialog {
-  min-width: 320px;
+// ═══════════════════════════════════════════════════════════
+//  Form Dialog — Improved Layout
+// ═══════════════════════════════════════════════════════════
+
+// Title
+.dialog-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary, #1e293b);
+  margin: 0;
+  padding-bottom: 4px;
 }
 
+// Content (scrollable area)
+mat-dialog-content {
+  padding: 16px 0 8px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 60vh;
+
+  // Hide the internal scrollbar gutter from leaking
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-border, #e2e0de);
+    border-radius: 4px;
+  }
+}
+
+// Form fields
 .dialog-form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 8px;
+  gap: 4px;
 }
 
 .full-width {
   width: 100%;
 }
 
+// Actions bar
 mat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
   padding: 16px 0 0;
-  gap: 8px;
+  margin: 0;
+  min-height: unset;
+  border-top: 1px solid var(--color-border-light, #f0edeb);
+}
 
-  button {
-    border-radius: 8px;
-    padding: 8px 20px;
+// Buttons
+.btn-cancel {
+  border-radius: var(--radius-lg, 12px) !important;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-secondary, #64748b);
+  border-color: var(--color-border, #e2e0de) !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-text-secondary, #64748b) !important;
+    background: var(--color-bg-secondary, #f8f6f6) !important;
   }
 }
 
-h2[mat-dialog-title] {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1f36;
-  margin-bottom: 8px;
+.btn-submit {
+  border-radius: var(--radius-lg, 12px) !important;
+  padding: 8px 24px;
+  font-weight: 700;
+  font-size: 14px;
+  background: var(--color-primary, #ec5b13) !important;
+  box-shadow: 0 2px 8px rgba(236, 91, 19, 0.25);
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-hover, #d44f0f) !important;
+    box-shadow: 0 4px 14px rgba(236, 91, 19, 0.35);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    box-shadow: none;
+  }
+}
+
+// ── Global overrides for the dialog container ──
+::ng-deep .mat-mdc-dialog-surface {
+  padding: 24px !important;
+  border-radius: var(--radius-xl, 16px) !important;
+  overflow: hidden !important;
+}
+
+// Fix subscript wrapper in form fields inside dialogs
+::ng-deep .dialog-form {
+  .mat-mdc-form-field-subscript-wrapper {
+    height: 20px;
+  }
+
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__trailing {
+    border-color: var(--color-border, #e2e0de) !important;
+  }
 }

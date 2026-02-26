@@ -1,82 +1,108 @@
 <div class="products-page">
   <app-header 
     title="Gestión de Menú"
-    subtitle="Administra tus platillos, precios y disponibilidad."
-    [showAddButton]="true"
-    addButtonText="Agregar Producto"
-    (addClick)="addProduct()">
+    subtitle="Administra tus platillos, precios y disponibilidad.">
   </app-header>
-  
+
   <div class="products-content">
-    <!-- Sidebar with Categories -->
-    <!-- <aside class="categories-sidebar">
-      <h3 class="sidebar-title">Categorías</h3>
-      <div class="category-list">
-        <button 
-          class="category-item" 
-          [class.active]="!selectedCategory"
-          (click)="selectedCategory = '';">
-          <span>Todas</span>
-          <span class="category-count">{{ products().length }}</span>
-        </button>
-        @for (category of categories; track category._id) {
-          <button 
-            class="category-item" 
-            [class.active]="selectedCategory === category._id"
-            (click)="selectedCategory = category._id || '';">
-            <span>{{ category.name }}</span>
-            <mat-icon class="expand-icon">expand_more</mat-icon>
-          </button>
-        }
-      </div>
-    </aside> -->
-    
-    <!-- Main Content -->
     <main class="products-main">
-      <!-- Filters Bar -->
-      <div class="filters-bar">
-        <!-- <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Buscar productos</mat-label>
-          <input matInput [formControl]="searchControl" placeholder="Nombre o descripción...">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field> -->
-        
-        <!-- <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Disponibilidad</mat-label>
-          <mat-select [(value)]="selectedAvailability" (selectionChange)="() => console.log("")">
-            <mat-option value="">Todas</mat-option>
-            <mat-option value="true">Disponibles</mat-option>
-            <mat-option value="false">No disponibles</mat-option>
-          </mat-select>
-        </mat-form-field>
-         -->
-        <!-- @if (searchControl.value || selectedCategory || selectedAvailability) {
-          <button mat-stroked-button class="clear-btn" (click)="clearFilters()">
-            <mat-icon>clear</mat-icon>
-            Limpiar
+
+      <!-- ═══ Actions Row ═══ -->
+      <div class="actions-row">
+        <div class="actions-left">
+          <span class="results-count">{{ filteredProducts().length }} productos</span>
+        </div>
+        <div class="actions-right">
+          <button mat-stroked-button class="action-btn" (click)="openCategoryManager()">
+            <mat-icon>category</mat-icon>
+            Gestionar Categorías
           </button>
-        } -->
+          <button mat-raised-button color="primary" class="action-btn primary-btn" (click)="addProduct()">
+            <ng-container>
+              <mat-icon>add</mat-icon>
+              Agregar Producto
+            </ng-container>
+          </button>
+        </div>
       </div>
-      
-      <!-- Products Grid -->
+
+      <!-- ═══ Filters Bar ═══ -->
+      <div class="filters-bar">
+        <div class="search-input-wrapper">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            class="search-input"
+            type="text"
+            placeholder="Buscar por nombre o categoría..."
+            [value]="searchText()"
+            (input)="searchText.set($any($event.target).value)" />
+        </div>
+
+        <div class="filter-selects">
+          <mat-form-field appearance="outline" class="filter-select">
+            <mat-label>Categoría</mat-label>
+            <mat-select [value]="selectedCategory()" (selectionChange)="selectedCategory.set($event.value)">
+              <mat-option value="">Todas</mat-option>
+              @for (category of categories(); track category._id) {
+                <mat-option [value]="category._id">{{ category.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-select">
+            <mat-label>Estado</mat-label>
+            <mat-select [value]="selectedStatus()" (selectionChange)="selectedStatus.set($event.value)">
+              <mat-option value="">Todos</mat-option>
+              <mat-option value="available">Disponible</mat-option>
+              <mat-option value="unavailable">No disponible</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- ═══ Active Filters ═══ -->
+      @if (hasActiveFilters()) {
+        <div class="active-filters">
+          <span class="filter-label">{{ filteredProducts().length }} resultado(s)</span>
+          <button class="clear-filters" (click)="clearFilters()">
+            <mat-icon>close</mat-icon>
+            Limpiar filtros
+          </button>
+        </div>
+      }
+
+      <!-- ═══ Products Grid ═══ -->
       @if (isLoading()) {
         <div class="loading-container">
           <mat-spinner diameter="40"></mat-spinner>
           <span>Cargando productos...</span>
         </div>
-      } @else if (products().length === 0) {
+      } @else if (filteredProducts().length === 0) {
         <div class="empty-state">
-          <mat-icon>restaurant_menu</mat-icon>
-          <h3>No hay productos</h3>
-          <!-- <p>{{ searchControl.value || selectedCategory ? 'No se encontraron productos con los filtros aplicados.' : 'Comienza agregando tu primer producto.' }}</p> -->
-          <button mat-raised-button color="primary" (click)="addProduct()">
-            <mat-icon>add</mat-icon>
-            Agregar Producto
-          </button>
+          <div class="empty-state-icon">
+            <mat-icon>restaurant_menu</mat-icon>
+          </div>
+          @if (hasActiveFilters()) {
+            <h3>Sin resultados</h3>
+            <p>No se encontraron productos con los filtros aplicados.</p>
+            <button mat-stroked-button (click)="clearFilters()">
+              <mat-icon>refresh</mat-icon>
+              Limpiar filtros
+            </button>
+          } @else {
+            <h3>No hay productos</h3>
+            <p>Comienza agregando tu primer producto al menú.</p>
+            <button mat-raised-button color="primary" class="empty-cta" (click)="addProduct()">
+              <ng-container>
+                <mat-icon>add</mat-icon>
+                Agregar Producto
+              </ng-container>
+            </button>
+          }
         </div>
       } @else {
         <div class="products-grid">
-          @for (product of products(); track product._id) {
+          @for (product of filteredProducts(); track product._id) {
             <div class="product-card" [class.unavailable]="!product.available">
               <div class="product-image">
                 @if (product.imageUrl) {
@@ -97,12 +123,16 @@
                   <span class="product-price">${{ product.price | number:'1.2-2' }}</span>
                 </div>
                 
-                <p class="product-description">{{ product.description || 'Sin descripción' }}</p>
+                @if (product.description) {
+                  <p class="product-description">{{ product.description }}</p>
+                }
                 
-                <div class="product-category">
-                  <mat-icon>folder</mat-icon>
-                  <!-- <span>{{ getCategoryName(product.categoryId) }}</span> -->
-                </div>
+                @if (getCategoryName(product.categoryId)) {
+                  <div class="product-category-tag">
+                    <mat-icon>folder</mat-icon>
+                    <span>{{ getCategoryName(product.categoryId) }}</span>
+                  </div>
+                }
               </div>
               
               <div class="product-actions">

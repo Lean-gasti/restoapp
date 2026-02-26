@@ -7,7 +7,7 @@
 .form-content {
   padding: 24px 32px;
   flex: 1;
-  background: #f5f7fb;
+  background: var(--color-bg-secondary, #f8f6f6);
 }
 
 .loading-container {
@@ -17,7 +17,7 @@
   justify-content: center;
   padding: 80px;
   gap: 16px;
-  color: #6b7280;
+  color: var(--color-text-secondary, #64748b);
 }
 
 .product-form {
@@ -32,18 +32,21 @@
   margin-bottom: 24px;
 }
 
+// ── Form Card ──
 .form-card,
 .preview-card {
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  background: var(--color-bg-primary, #fff);
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light, #f0edeb);
 
   mat-card-header {
     padding: 20px 24px 0;
 
     mat-card-title {
       font-size: 18px;
-      font-weight: 600;
-      color: #1a1f36;
+      font-weight: 700;
+      color: var(--color-text-primary, #1e293b);
     }
   }
 
@@ -71,7 +74,7 @@
     .mdc-notched-outline__notch,
     .mdc-notched-outline__leading,
     .mdc-notched-outline__trailing {
-      border-color: #e5e7eb !important;
+      border-color: var(--color-border, #e2e0de) !important;
     }
 
     .mat-mdc-form-field-infix {
@@ -86,6 +89,7 @@
   }
 }
 
+// ── Image Upload ──
 .image-upload-container {
   margin-bottom: 24px;
 }
@@ -98,55 +102,60 @@
   margin-bottom: 16px;
 
   button {
-    border-radius: 8px !important;
+    border-radius: var(--radius-md, 8px) !important;
     height: 40px;
     font-size: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
-
-    mat-icon {
-      margin-right: 0;
-    }
   }
 
   .file-hint {
     font-size: 12px;
-    color: #6b7280;
+    color: var(--color-text-secondary, #64748b);
   }
 }
 
 .error-hint {
-  color: #ef4444 !important;
+  color: var(--color-danger, #ef4444) !important;
   font-weight: 500;
 }
 
+// ── Availability Toggle ──
 .availability-toggle {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 16px;
-  background: #f8f9fc;
-  border-radius: 12px;
+  background: var(--color-bg-secondary, #f8f6f6);
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid var(--color-border-light, #f0edeb);
   margin-top: 8px;
 }
 
 .toggle-hint {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-secondary, #64748b);
   margin-left: 52px;
 }
 
-// Preview Card
+// ── Preview Card ──
+.preview-card {
+  position: sticky;
+  top: 100px;
+  align-self: start;
+}
+
 .preview-product {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border: 1px solid var(--color-border-light, #f0edeb);
+  border-radius: var(--radius-lg, 12px);
   overflow: hidden;
+  background: var(--color-bg-primary, #fff);
 }
 
 .preview-image {
   height: 200px;
-  background: #f3f4f6;
+  background: var(--color-bg-secondary, #f8f6f6);
   overflow: hidden;
 
   img {
@@ -162,7 +171,7 @@
     justify-content: center;
     height: 100%;
     gap: 8px;
-    color: #9ca3af;
+    color: var(--color-text-muted, #94a3b8);
 
     mat-icon {
       font-size: 48px;
@@ -182,14 +191,14 @@
 
 .preview-name {
   font-size: 18px;
-  font-weight: 600;
-  color: #1a1f36;
+  font-weight: 700;
+  color: var(--color-text-primary, #1e293b);
   margin: 0 0 8px;
 }
 
 .preview-description {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary, #64748b);
   margin: 0 0 16px;
   line-height: 1.5;
 }
@@ -202,58 +211,60 @@
 
 .preview-price {
   font-size: 22px;
-  font-weight: 700;
-  color: #667eea;
+  font-weight: 800;
+  color: var(--color-primary, #ec5b13);
 }
 
 .preview-status {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 6px 12px;
-  border-radius: 20px;
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--color-danger-light, rgba(239, 68, 68, 0.1));
+  color: var(--color-danger, #ef4444);
 
   &.available {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
+    background: var(--color-success-light, rgba(16, 185, 129, 0.1));
+    color: var(--color-success, #10b981);
   }
 }
 
-// Form Actions
+// ── Form Actions ──
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 16px;
-  padding: 24px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 20px 24px;
+  background: var(--color-bg-primary, #fff);
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light, #f0edeb);
 
   button {
-    border-radius: 12px;
+    border-radius: var(--radius-lg, 12px);
     padding: 12px 24px;
     font-weight: 600;
     min-width: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-
-    mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
   }
 
   button[color="primary"] {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+    background: var(--color-primary, #ec5b13) !important;
+    box-shadow: var(--shadow-primary);
+
+    ::ng-deep .mdc-button__label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    &:hover {
+      background: var(--color-primary-hover, #d44f0f) !important;
+    }
   }
 }
 
-// Responsive
+// ── Responsive ──
 @media (max-width: 1024px) {
   .form-grid {
     grid-template-columns: 1fr;
@@ -261,6 +272,7 @@
 
   .preview-card {
     order: -1;
+    position: static;
   }
 }
 

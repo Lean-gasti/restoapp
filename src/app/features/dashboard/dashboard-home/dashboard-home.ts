@@ -56,13 +56,7 @@ export class DashboardHome implements OnInit, OnDestroy {
       label: 'Nuevo Producto', 
       icon: 'add_circle', 
       route: APP_ROUTES.PRODUCTS.NEW,
-      color: '#667eea'
-    },
-    { 
-      label: 'Nueva Categoría', 
-      icon: 'folder_open', 
-      route: APP_ROUTES.CATEGORIES.NEW,
-      color: '#10b981'
+      color: '#ec5b13'
     },
     { 
       label: 'Nuevo Catálogo', 

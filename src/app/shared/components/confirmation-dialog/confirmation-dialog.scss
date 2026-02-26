@@ -27,41 +27,41 @@
   }
 
   &.danger {
-    background: rgba(239, 68, 68, 0.1);
+    background: var(--color-danger-light, rgba(239, 68, 68, 0.1));
 
     mat-icon {
-      color: #ef4444;
+      color: var(--color-danger, #ef4444);
     }
   }
 
   &.warning {
-    background: rgba(245, 158, 11, 0.1);
+    background: var(--color-warning-light, rgba(245, 158, 11, 0.1));
 
     mat-icon {
-      color: #f59e0b;
+      color: var(--color-warning, #f59e0b);
     }
   }
 
   &.info {
-    background: rgba(59, 130, 246, 0.1);
+    background: var(--color-info-light, rgba(59, 130, 246, 0.1));
 
     mat-icon {
-      color: #3b82f6;
+      color: var(--color-info, #3b82f6);
     }
   }
 }
 
 .dialog-title {
   font-size: 20px;
-  font-weight: 600;
-  color: #1a1f36;
+  font-weight: 700;
+  color: var(--color-text-primary, #1e293b);
   margin: 0;
   text-align: center;
 }
 
 .dialog-message {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-secondary, #64748b);
   text-align: center;
   line-height: 1.6;
   margin: 0;
@@ -76,8 +76,8 @@ mat-dialog-actions {
   padding: 16px 0 0;
 
   button {
-    border-radius: 10px;
+    border-radius: var(--radius-md, 8px);
     min-width: 100px;
-    font-weight: 500;
+    font-weight: 600;
   }
 }

@@ -54,6 +54,7 @@ export class CatalogBuilder implements OnInit {
   expandedSections = signal<Set<number>>(new Set());
   
   selectedCategory = signal('');
+  searchText = signal('');
   isLoading = signal(true);
   isSaving = signal(false);
   
@@ -121,6 +122,7 @@ export class CatalogBuilder implements OnInit {
   /** Productos disponibles filtrados (que no están en ninguna sección) */
   filteredProducts: Signal<IProduct[]> = computed(() => {
     const searchCategory = this.selectedCategory();
+    const searchQuery = this.searchText().toLowerCase().trim();
     const available = this.availableProducts();
     const sections = this.catalogSections();
     
@@ -132,8 +134,9 @@ export class CatalogBuilder implements OnInit {
     
     return available.filter((p: IProduct) => {
       const matchesCategory = !searchCategory || p.categoryId === searchCategory;
+      const matchesSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery);
       const notInCatalog = !productsInCatalog.has(p._id!);
-      return matchesCategory && notInCatalog;
+      return matchesCategory && matchesSearch && notInCatalog;
     });
   });
   

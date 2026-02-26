@@ -1,0 +1,86 @@
+<div class="category-manager">
+  <!-- Header -->
+  <div class="manager-header">
+    <div class="header-left">
+      <h2>Gestionar Categorías</h2>
+      <span class="header-count">{{ categories().length }} categorías</span>
+    </div>
+    <button mat-icon-button (click)="close()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="manager-toolbar">
+    <div class="search-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input 
+        class="search-input"
+        type="text"
+        placeholder="Buscar o crear categoría..."
+        [value]="searchText()"
+        (input)="searchText.set($any($event.target).value)"
+        (keydown)="onSearchKeydown($event)" />
+    </div>
+    @if (canCreate()) {
+      <button mat-raised-button color="primary" class="add-btn" 
+        (click)="createFromSearch()" [disabled]="isCreating()">
+        @if (isCreating()) {
+          <mat-spinner diameter="16"></mat-spinner>
+        } @else {
+          <ng-container>
+            <mat-icon>add</mat-icon>
+            Crear
+          </ng-container>
+        }
+      </button>
+    }
+  </div>
+
+  <!-- Category List -->
+  <div class="category-list">
+    @if (filteredCategories().length === 0) {
+      <div class="empty-state">
+        <mat-icon>folder_open</mat-icon>
+        @if (canCreate()) {
+          <span>No existe "{{ searchText() }}"</span>
+          <p>Presioná <strong>Enter</strong> o el botón <strong>Crear</strong> para agregarla.</p>
+        } @else if (searchText()) {
+          <span>No se encontraron categorías</span>
+        } @else {
+          <span>No hay categorías</span>
+          <p>Escribí un nombre arriba y presioná Enter para crear una.</p>
+        }
+      </div>
+    } @else {
+      <!-- Table Header -->
+      <div class="list-header">
+        <span class="col-name">NOMBRE</span>
+        <span class="col-items">PRODUCTOS</span>
+        <span class="col-actions">ACCIONES</span>
+      </div>
+
+      @for (category of filteredCategories(); track category._id) {
+        <div class="category-row">
+          <div class="category-info">
+            <div class="category-icon">
+              <mat-icon>folder</mat-icon>
+            </div>
+            <span class="category-name">{{ category.name }}</span>
+          </div>
+          <span class="category-count">{{ getProductCount(category._id || '') }} items</span>
+          <div class="category-actions">
+            <button mat-icon-button matTooltip="Editar" (click)="editCategory(category)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Eliminar" 
+              (click)="deleteCategory(category)"
+              [disabled]="getProductCount(category._id || '') > 0">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

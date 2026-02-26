@@ -21,6 +21,19 @@
         <div class="products-panel">
           <div class="panel-header">
             <h3>Productos Disponibles</h3>
+          </div>
+
+          <!-- Search & Filter -->
+          <div class="panel-filters">
+            <div class="search-input-wrapper">
+              <mat-icon class="search-icon">search</mat-icon>
+              <input
+                class="search-input"
+                type="text"
+                placeholder="Buscar productos..."
+                [value]="searchText()"
+                (input)="searchText.set($any($event.target).value)" />
+            </div>
             <mat-form-field appearance="outline" class="category-filter">
               <mat-label>Categoría</mat-label>
               <mat-select [value]="selectedCategory()" (selectionChange)="selectedCategory.set($event.value)">
@@ -64,9 +77,24 @@
             }
             
             @if (filteredProducts().length === 0) {
-              <div class="empty-list">
-                <mat-icon>inventory_2</mat-icon>
-                <span>No hay productos disponibles</span>
+              <div class="empty-products">
+                <div class="empty-products-icon">
+                  <mat-icon>inventory_2</mat-icon>
+                </div>
+                <span class="empty-products-title">No hay productos disponibles</span>
+                <p class="empty-products-text">
+                  @if (searchText() || selectedCategory()) {
+                    No se encontraron resultados. Probá cambiando los filtros.
+                  } @else {
+                    Comienza agregando artículos a tu inventario para verlos aquí.
+                  }
+                </p>
+                @if (!searchText() && !selectedCategory()) {
+                  <button mat-raised-button color="primary" class="empty-products-btn" routerLink="/products/new">
+                    <mat-icon>add</mat-icon>
+                    Crear producto
+                  </button>
+                }
               </div>
             }
           </div>
@@ -186,6 +214,7 @@
           <button 
             mat-raised-button 
             color="primary" 
+            class="save-btn"
             (click)="saveCatalog()"
             [disabled]="isSaving()">
             @if (isSaving()) {
@@ -193,7 +222,7 @@
             } @else {
               <ng-container>
                 <mat-icon>save</mat-icon>
-                Guardar Cambios
+                <span>Guardar Cambios</span>
               </ng-container>
             }
           </button>

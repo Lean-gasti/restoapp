@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(26, 31, 54, 0.7);
+  background: rgba(34, 22, 16, 0.65);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -18,17 +18,17 @@
   align-items: center;
   gap: 16px;
   padding: 32px;
-  background: #fff;
-  border-radius: 16px;
+  background: var(--color-bg-primary, #fff);
+  border-radius: var(--radius-xl, 16px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
 .loader-text {
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-text-primary, #1e293b);
 }
 
 ::ng-deep .mat-mdc-progress-spinner circle {
-  stroke: #667eea !important;
+  stroke: var(--color-primary, #ec5b13) !important;
 }

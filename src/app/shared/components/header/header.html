@@ -19,12 +19,36 @@
         </button>
       }
       
-      <div class="user-info">
+      <!-- User dropdown -->
+      <button class="user-trigger" [matMenuTriggerFor]="userMenu">
         <div class="user-avatar">
           <mat-icon>person</mat-icon>
         </div>
         <span class="user-email">{{ user?.email }}</span>
-      </div>
+        <mat-icon class="dropdown-arrow">expand_more</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu" class="user-dropdown-menu" xPosition="before">
+        <div class="dropdown-header">
+          <div class="dropdown-avatar">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div class="dropdown-user-info">
+            <span class="dropdown-user-name">{{ user?.email }}</span>
+            <span class="dropdown-user-role">Administrador</span>
+          </div>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="goToSettings()">
+          <mat-icon>business</mat-icon>
+          <span>Configuración de empresa</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item class="logout-item" (click)="onLogout()">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar sesión</span>
+        </button>
+      </mat-menu>
     </div>
   </div>
 </header>

@@ -2,15 +2,16 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { Layout } from './shared/components/layout/layout';
+import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
-  // Redirect root to auth/login
+  // Redirect root to products (AuthGuard will handle unauthenticated users)
   { 
     path: '', 
     redirectTo: '/auth', 
     pathMatch: 'full' 
   },
-  // Public routes
+  // Public routes (only for non-authenticated users)
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth-module').then(m => m.AuthModule)
@@ -26,18 +27,17 @@ const routes: Routes = [
       // },
       {
         path: 'products',
+        canActivate: [AuthGuard],
         loadChildren: () => import('./features/products/products.module').then(m => m.ProductsModule)
       },
       {
-        path: 'categories',
-        loadChildren: () => import('./features/categories/categories.module').then(m => m.CategoriesModule)
-      },
-      {
         path: 'catalogs',
+        canActivate: [AuthGuard],
         loadChildren: () => import('./features/catalogs/catalogs.module').then(m => m.CatalogsModule)
       },
       {
         path: 'company',
+        canActivate: [AuthGuard],
         loadChildren: () => import('./features/company/company.module').then(m => m.CompanyModule)
       }
     ]

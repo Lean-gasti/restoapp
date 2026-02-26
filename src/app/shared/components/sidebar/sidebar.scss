@@ -4,14 +4,14 @@
   width: 260px;
   min-width: 260px;
   height: 100vh;
-  background: linear-gradient(180deg, #1a1f36 0%, #252b48 100%);
+  background: var(--color-bg-dark, #221610);
   color: #fff;
   padding: 0;
   position: fixed;
   left: 0;
   top: 0;
   z-index: 100;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 4px 0 24px rgba(34, 22, 16, 0.2);
 }
 
 .sidebar-header {
@@ -28,20 +28,20 @@
 .logo-image {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg, 12px);
   object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .logo-placeholder {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-primary, #ec5b13);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(236, 91, 19, 0.4);
 
   mat-icon {
     font-size: 26px;
@@ -59,7 +59,7 @@
 
 .company-name {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.3px;
   color: #fff;
 }
@@ -76,7 +76,7 @@
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   overflow-y: auto;
 }
 
@@ -87,14 +87,15 @@
   padding: 14px 16px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.65);
-  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-lg, 12px);
   cursor: pointer;
   transition: all 0.25s ease;
   width: 100%;
   text-align: left;
   font-size: 15px;
   font-weight: 500;
+  font-family: inherit;
 
   mat-icon {
     font-size: 22px;
@@ -113,9 +114,10 @@
   }
 
   &.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--color-primary, #ec5b13);
     color: #fff;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(236, 91, 19, 0.4);
+    font-weight: 600;
 
     mat-icon {
       transform: scale(1.05);

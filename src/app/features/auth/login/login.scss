@@ -6,7 +6,7 @@
 // Left Panel
 .login-left {
     flex: 1;
-    background: linear-gradient(135deg, #1a1f36 0%, #252b48 100%);
+    background: var(--color-bg-dark, #221610);
     padding: 60px;
     display: flex;
     flex-direction: column;
@@ -20,13 +20,13 @@
     .logo {
         width: 80px;
         height: 80px;
-        border-radius: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: var(--radius-2xl, 20px);
+        background: var(--color-primary, #ec5b13);
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 24px;
-        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 8px 30px rgba(236, 91, 19, 0.4);
 
         mat-icon {
             font-size: 40px;
@@ -38,7 +38,7 @@
 
     h1 {
         font-size: 36px;
-        font-weight: 700;
+        font-weight: 800;
         margin: 0 0 12px;
         letter-spacing: -0.5px;
     }
@@ -64,7 +64,7 @@
     gap: 16px;
     padding: 16px 20px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
+    border-radius: var(--radius-lg, 12px);
     transition: all 0.25s ease;
 
     &:hover {
@@ -76,7 +76,7 @@
         font-size: 24px;
         width: 24px;
         height: 24px;
-        color: #667eea;
+        color: var(--color-primary, #ec5b13);
     }
 
     span {
@@ -89,7 +89,7 @@
 // Right Panel
 .login-right {
     flex: 1;
-    background: #f5f7fb;
+    background: var(--color-bg-secondary, #f8f6f6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -102,8 +102,8 @@
 }
 
 .login-card {
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-2xl, 20px);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
 }
 
@@ -114,14 +114,14 @@ mat-card-header {
 
     mat-card-title {
         font-size: 26px;
-        font-weight: 700;
-        color: #1a1f36;
+        font-weight: 800;
+        color: var(--color-text-primary, #1e293b);
         margin-bottom: 8px;
     }
 
     mat-card-subtitle {
         font-size: 14px;
-        color: #6b7280;
+        color: var(--color-text-secondary, #64748b);
     }
 }
 
@@ -148,7 +148,7 @@ mat-card-content {
         .mdc-notched-outline__notch,
         .mdc-notched-outline__leading,
         .mdc-notched-outline__trailing {
-            border-color: #e5e7eb !important;
+            border-color: var(--color-border, #e2e0de) !important;
         }
 
         .mat-mdc-form-field-infix {
@@ -161,18 +161,19 @@ mat-card-content {
 .login-button {
     width: 100%;
     height: 52px;
-    border-radius: 12px;
+    border-radius: var(--radius-lg, 12px);
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.5px;
     margin-top: 8px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    background: var(--color-primary, #ec5b13) !important;
+    box-shadow: var(--shadow-primary, 0 4px 14px rgba(236, 91, 19, 0.3));
     transition: all 0.25s ease;
 
     &:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+        box-shadow: 0 6px 25px rgba(236, 91, 19, 0.45);
+        background: var(--color-primary-hover, #d44f0f) !important;
     }
 
     &:disabled {
@@ -186,12 +187,12 @@ mat-card-footer {
 
     .footer-text {
         font-size: 14px;
-        color: #6b7280;
+        color: var(--color-text-secondary, #64748b);
         margin: 0;
 
         a {
-            color: #667eea;
-            font-weight: 500;
+            color: var(--color-primary, #ec5b13);
+            font-weight: 600;
             text-decoration: none;
 
             &:hover {

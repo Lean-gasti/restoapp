@@ -17,13 +17,6 @@ export const APP_ROUTES = {
     DETAIL: (id: string) => `/products/${id}`
   },
   
-  // Categories
-  CATEGORIES: {
-    LIST: '/categories',
-    NEW: '/categories/new',
-    EDIT: (id: string) => `/categories/${id}/edit`
-  },
-  
   // Catalogs
   CATALOGS: {
     LIST: '/catalogs',
