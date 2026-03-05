@@ -5,9 +5,10 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration production --base-href https://lean-gasti.github.io/restoapp/",
+    "deploy": "npm run build:prod && copy dist\\restoapp\\browser\\index.csr.html dist\\restoapp\\browser\\index.html /Y && npx ngh --dir dist/restoapp/browser",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:restoapp": "node dist/restoapp/server/server.mjs"
+    "test": "ng test"
   },
   "prettier": {
     "overrides": [
