@@ -28,6 +28,11 @@ jobs:
       - name: Build
         run: npx ng build --configuration production --base-href /restoapp/
 
+      - name: Prepare for GitHub Pages
+        run: |
+          cd dist/restoapp/browser
+          mv index.csr.html index.html || echo "Ya se llama index.html"
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
