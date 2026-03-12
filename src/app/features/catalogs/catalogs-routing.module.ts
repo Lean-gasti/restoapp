@@ -4,6 +4,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { CatalogList } from './catalog-list/catalog-list';
 import { CatalogBuilder } from './catalog-builder/catalog-builder';
 
+import { CatalogPreview } from './catalog-preview/catalog-preview';
+
 const routes: Routes = [
   {
     path: '',
@@ -12,6 +14,10 @@ const routes: Routes = [
   {
     path: ':id/builder',
     component: CatalogBuilder
+  },
+  {
+    path: ':id/preview',
+    component: CatalogPreview
   }
 ];
 

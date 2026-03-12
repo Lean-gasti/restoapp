@@ -7,15 +7,18 @@ import { CatalogsRoutingModule } from './catalogs-routing.module';
 import { CatalogList } from './catalog-list/catalog-list';
 import { CatalogBuilder } from './catalog-builder/catalog-builder';
 
+import { CatalogPreview } from './catalog-preview/catalog-preview';
+
 @NgModule({
   declarations: [
     CatalogList,
-    CatalogBuilder
+    CatalogBuilder,
+    CatalogPreview
   ],
   imports: [
     SharedModule,
     CatalogsRoutingModule,
-    DragDropModule
+    DragDropModule,
   ]
 })
 export class CatalogsModule { }

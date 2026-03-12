@@ -1,0 +1,95 @@
+<div class="preview-page">
+  <app-header 
+    [title]="catalog()?.name + ' (Vista Previa)'"
+    subtitle="Así es como tus clientes verán tu menú">
+  </app-header>
+  
+  <div class="preview-content">
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Cargando...</span>
+      </div>
+    } @else {
+      <div class="catalog-menu">
+        @for (sectionData of catalogSections(); track sectionData.section._id) {
+          @if (sectionData.products.length > 0) {
+            <div class="menu-section">
+              <h2 class="section-title">{{ sectionData.section.name }}</h2>
+              @if (sectionData.section.description) {
+                <p class="section-description">{{ sectionData.section.description }}</p>
+              }
+              
+              <div class="products-grid">
+                @for (product of sectionData.products; track product._id) {
+                  <div class="product-card">
+                    <div class="product-info">
+                      <h3 class="product-name">{{ product.name }}</h3>
+                      @if (product.description) {
+                        <p class="product-description">{{ product.description }}</p>
+                      }
+                      <span class="product-price">${{ product.price | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="product-image">
+                      @if (product.imageUrl) {
+                        <img [src]="product.imageUrl" [alt]="product.name">
+                      } @else {
+                        <div class="placeholder-img">
+                          <mat-icon>restaurant</mat-icon>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        @if (catalogSections().length === 0) {
+          <div class="empty-state">
+            <mat-icon>menu_book</mat-icon>
+            <p>Este catálogo aún no tiene productos.</p>
+          </div>
+        }
+      </div>
+      
+      <div class="actions-bar">
+        <button mat-stroked-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Volver al Editor
+        </button>
+        <button mat-flat-button color="primary" (click)="openQRDialog()">
+          <mat-icon>qr_code</mat-icon>
+          Generar QR
+        </button>
+      </div>
+    }
+  </div>
+</div>
+
+<ng-template #qrDialog>
+  <div class="qr-dialog-content">
+    <div class="qr-header">
+      <div class="qr-icon-bg">
+        <mat-icon>qr_code_scanner</mat-icon>
+      </div>
+      <h3>Código QR de tu Menú</h3>
+      <p>Escanea este código o descárgalo para imprimirlo o compartirlo digitalmente, permitiendo a tus clientes acceder al menú de forma rápida.</p>
+    </div>
+    
+    <div class="qr-image-wrapper">
+      <div class="qr-frame">
+        <img [src]="qrDataUrl()" alt="Código QR del catálogo">
+      </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button mat-stroked-button (click)="closeDialog()">Cerrar</button>
+      <button mat-flat-button color="primary" (click)="downloadQR()">
+        <mat-icon>download</mat-icon>
+        Descargar QR
+      </button>
+    </div>
+  </div>
+</ng-template>

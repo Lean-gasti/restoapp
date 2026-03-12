@@ -22,7 +22,8 @@ export const APP_ROUTES = {
     LIST: '/catalogs',
     NEW: '/catalogs/new',
     EDIT: (id: string) => `/catalogs/${id}/edit`,
-    BUILDER: (id: string) => `/catalogs/${id}/builder`
+    BUILDER: (id: string) => `/catalogs/${id}/builder`,
+    PREVIEW: (id: string) => `/catalogs/${id}/preview`
   },
   
   // Company

@@ -468,6 +468,12 @@ export class CatalogBuilder implements OnInit {
     this.router.navigate([APP_ROUTES.CATALOGS.LIST]);
   }
   
+  previewCatalog(): void {
+    if (this.catalogId) {
+      this.router.navigate([APP_ROUTES.CATALOGS.PREVIEW(this.catalogId)]);
+    }
+  }
+  
   editCatalogName(): void {
     const currentCatalog = this.catalog();
     if (!currentCatalog) return;
