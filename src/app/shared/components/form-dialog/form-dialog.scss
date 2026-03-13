@@ -8,7 +8,7 @@
   font-weight: 700;
   color: var(--color-text-primary, #1e293b);
   margin: 0;
-  padding-bottom: 4px;
+  margin-bottom: 4px;
 }
 
 // Content (scrollable area)
@@ -33,7 +33,8 @@ mat-dialog-content {
 .dialog-form {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  padding-top: 8px;
 }
 
 .full-width {

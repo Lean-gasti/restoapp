@@ -25,10 +25,13 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         let errorMessage = 'Ha ocurrido un error inesperado';
-        
+        const isLogin = request.url.includes('auth/login');
+    
         if (error.error instanceof ErrorEvent) {
           // Client-side error
           errorMessage = error.error.message;
+        } else if (isLogin) {
+            errorMessage = error.error?.message || 'Credenciales inválidas.';
         } else {
           // Server-side error
           switch (error.status) {
@@ -54,8 +57,6 @@ export class ErrorInterceptor implements HttpInterceptor {
               errorMessage = error.error?.message || errorMessage;
           }
         }
-        
-        console.error('HTTP Error:', error);
         
         return throwError(() => ({
           status: error.status,

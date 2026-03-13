@@ -69,19 +69,14 @@ export class CatalogSectionService {
     return this.apiService.patch<ICatalogItem>(
       API_ENDPOINTS.CATALOG_ITEMS.MODIFY(catalogId, id),
       patchData
-    ).pipe(
-      tap(response => {
-        if (response) {
-          const current = this.sections();
-          const index = current.findIndex(s => s._id === id);
-          if (index !== -1) {
-            const updated = [...current];
-            updated[index] = response;
-            this._sections.set(updated);
-          }
-        }
-      })
-    );
+    )
+  }
+
+  updateSections(catalogId: string, sections: ICatalogItemCreate[]): Observable<{ message: string }> {
+    return this.apiService.patch<{ message: string }>(
+      API_ENDPOINTS.CATALOG_ITEMS.MODIFY_ALL(catalogId),
+      { items: sections }
+    )
   }
 
   /**

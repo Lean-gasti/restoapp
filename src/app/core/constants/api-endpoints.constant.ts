@@ -29,7 +29,8 @@ export const API_ENDPOINTS = {
   CATALOG_ITEMS: {
     GET_ALL: (catalogId: string) => `/catalogs/${catalogId}/items`,
     CREATE: (catalogId: string) => `/catalogs/${catalogId}/items`,
-    MODIFY: (catalogId: string, catalogItemId: string) => `/catalogs/${catalogId}/items/${catalogItemId}`,
+    MODIFY: (catalogId: string, id: string) => `/catalogs/${catalogId}/items/${id}`,
+    MODIFY_ALL: (catalogId: string) => `/catalogs/${catalogId}/items/update`,
     DELETE: (catalogId: string, catalogItemId: string) => `/catalogs/${catalogId}/items/${catalogItemId}`,
   },
   

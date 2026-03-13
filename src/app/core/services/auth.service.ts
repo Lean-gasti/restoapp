@@ -46,9 +46,6 @@ export class AuthService {
         if (response) {
           this.setSession(response);
         }
-      }),
-      catchError(error => {
-        return throwError(() => error);
       })
     );
   }

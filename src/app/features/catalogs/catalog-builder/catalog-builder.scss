@@ -291,6 +291,10 @@
   }
 }
 
+.section-info {
+  display: flex;
+}
+
 .section-title {
   display: flex;
   flex-direction: column;
@@ -324,6 +328,23 @@
   flex-direction: column;
   gap: 8px;
   min-height: 200px;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+}
+
+.product-category {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.product-price {
+  flex: 1;
+  text-align: right;
 }
 
 .product-item,

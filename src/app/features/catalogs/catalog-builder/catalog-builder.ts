@@ -267,18 +267,15 @@ export class CatalogBuilder implements OnInit {
       if (result && sectionData.section._id) {
         this.sectionService.update(this.catalogId!, sectionData.section._id, {
           name: result.name,
-          description: result.description || '',
-          order: sectionData.section.order,
-          catalogId: sectionData.section.catalogId,
-          products: sectionData.section.products
+          description: result.description || ''
         }).subscribe({
           next: (updated) => {
             const sections = this.catalogSections();
-            const index = sections.findIndex(s => s.section._id === updated._id);
+            const index = sections.findIndex(s => s.section._id === sectionData.section._id);
             if (index !== -1) {
-              const newSections = [...sections];
-              newSections[index] = { ...newSections[index], section: updated };
-              this.catalogSections.set(newSections);
+              const updatedSections = [...sections];
+              updatedSections[index] = { section: updated, products: sectionData.products };
+              this.catalogSections.set(updatedSections);
             }
             this.snackBar.open('Sección actualizada', 'Cerrar', { duration: 3000 });
           },
@@ -414,48 +411,24 @@ export class CatalogBuilder implements OnInit {
     this.isSaving.set(true);
     
     const sections = this.catalogSections();
-      
-    // Filtrar solo las secciones que tienen cambios
-    const changedSections = sections.filter(s => this.hasSectionChanged(s));
     
-    if (changedSections.length === 0) {
-      this.isSaving.set(false);
-      this.snackBar.open('No hay cambios para guardar', 'Cerrar', { duration: 3000 });
-      return;
-    }
     
-    const updatePromises = changedSections.map(s => {
-      // Limpiar products: enviar productId y order, sin _ids de MongoDB
-      const cleanProducts = s.section.products.map((p, index) => ({
-        productId: p.productId,
-        order: p.order ?? index
-      }));
-      
-      // Construir el objeto de actualización
-      const updateData: { order: number; products?: { productId: string; order: number }[] } = {
-        order: s.section.order,
-        products: cleanProducts
-      };
-      
-      return this.sectionService.update(this.catalogId!, s.section._id!, updateData)
-    });
-    
-    forkJoin(updatePromises).subscribe({
+    const cleanSections: ICatalogItemCreate[] = sections.map((s, index) => ({
+      name: s.section.name,
+      catalogId: this.catalogId!,
+      description: s.section.description,
+      _id: s.section._id,
+      order: index,
+      products: s.products.map((p, index) => ({
+        productId: p._id!,
+        order: index
+      }))
+    }));
+
+    this.sectionService.updateSections(this.catalogId!, cleanSections).subscribe({
       next: () => {
-        // Normalizar el order en todas las secciones actuales antes de guardar estado
-        const normalizedSections = this.catalogSections().map(s => ({
-          section: {
-            ...s.section,
-            products: s.section.products.map((p, i) => ({ ...p, order: p.order ?? i }))
-          },
-          products: s.products
-        }));
-        this.catalogSections.set(normalizedSections);
-        
-        // Ahora guardar el estado original (hasChanges() retornará false)
-        this.saveOriginalState(normalizedSections);
         this.isSaving.set(false);
-        this.snackBar.open(`${changedSections.length} sección(es) guardada(s)`, 'Cerrar', { duration: 3000 });
+        this.snackBar.open('Catálogo guardado', 'Cerrar', { duration: 3000 });
       },
       error: () => {
         this.isSaving.set(false);

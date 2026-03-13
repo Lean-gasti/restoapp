@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { APP_ROUTES } from '../../../core/constants/app-routes.constant';
+import { delay } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -19,12 +20,13 @@ export class Login {
   });
 
   hidePassword = true;
-  isLoading = false;
+  isLoading = signal<boolean>(false);
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cd: ChangeDetectorRef
   ) {}
 
   onLogin() {
@@ -33,7 +35,7 @@ export class Login {
       return;
     }
     
-    this.isLoading = true;
+    this.isLoading.set(true);
     const { email, password } = this.loginForm.value;
     
     this.authService.login({ email: email!, password: password! }).subscribe({
@@ -41,11 +43,10 @@ export class Login {
         this.router.navigate([APP_ROUTES.PRODUCTS.LIST]);
       },
       error: (error) => {
-        this.isLoading = false;
-        // For demo, navigate anyway
-        this.snackBar.open('Bienvenido al sistema', 'Cerrar', { duration: 3000 });
-        this.router.navigate([APP_ROUTES.PRODUCTS.LIST]);
-      }
+        this.snackBar.open(error.message || 'Error al iniciar sesión', 'Cerrar', { duration: 3000 });
+        this.isLoading.set(false);
+        this.cd.detectChanges();
+      },
     });
   }
 }
